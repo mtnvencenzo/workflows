@@ -51,10 +51,10 @@ on:
         required: true
         type: string
     secrets:
-       arm_client_secret:
+      arm_client_secret:
         description: "Azure arm client secret"
         required: true
-
+      
   workflow_dispatch:
 
 permissions:
@@ -89,6 +89,12 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Add ssh key to ssh-agent
+        # Supports fetching the packages. Not just the package.json git refs of legacy, but onerail scripts pulling packages.
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.TERRAFORM_MODULE_REPO_ACCESS_KEY_SECRET }}
 
       - name: Terraform module access
         run: |
