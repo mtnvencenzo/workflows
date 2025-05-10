@@ -1,0 +1,180 @@
+name: Terraform plan and apply
+description: |
+  This workflow is triggered by a pull request to the main branch or when running on the main branch. It checks out the code, initializes Terraform, and runs `terraform plan` and optionally `terraform apply` if the environment is production.  Terraform apply required an approval for it to execute.
+  It requires and uses Azure storage account information and credentials as the state store for terraform.
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: "Path to the root terraform directory containing the terraform files to deploy"
+        required: true
+        type: string
+      env:
+        description: "The environment this is running in. This is used to determine the concurrency group for the job runs"
+        required: true
+        type: string
+      allow_deploy:
+        description: "Allow the deploy to run. This is used to determine if the deploy job should run or not"
+        required: true
+        type: boolean
+      terraform_version:
+        description: "Terraform version to use"
+        required: false
+        type: string
+        default: "latest"
+      arm_client_id:
+        description: "Azure arm client id"
+        required: true
+        type: string
+      arm_subscription_id:
+        description: "Azure arm subscription id"
+        required: true
+        type: string
+      arm_tenant_id:
+        description: "Azure arm tenant id"
+        required: true
+        type: string
+      backend_resource_group_name:
+        description: "Azure resource group name that the terraform state storage account is in"
+        required: true
+        type: string
+      backend_storage_account_name:
+        description: "Azure storage account name where the terraform state is stored"
+        required: true
+        type: string
+      backend_container_name:
+        description: "Azure storage account container name where the terraform state is stored"
+        required: true
+        type: string
+      backend_key:
+        description: "Azure storage account key where the terraform state is stored"
+        required: true
+        type: string
+    secrets:
+       arm_client_secret:
+        description: "Azure arm client secret"
+        required: true
+       ssh_github_actions_key:
+        description: "SSH key for github actions"
+        required: true
+
+  workflow_dispatch:
+
+jobs:
+  terraform_prepare:
+    name: Terraform prepare
+    runs-on: "ubuntu-22.04"
+    concurrency:
+      group: "${{ inputs.env }}-environment"
+      cancel-in-progress: false
+    env:
+      # --------------------------------------------------------------------------
+      # terraform environment variables (used by terraform)
+      # https://developer.hashicorp.com/terraform/cli/config/environment-variables
+      # --------------------------------------------------------------------------
+      ARM_CLIENT_ID: ${{ inputs.arm_client_id }}
+      ARM_CLIENT_SECRET: ${{ secrets.arm_client_secret }}
+      ARM_SUBSCRIPTION_ID: ${{ inputs.arm_subscription_id }}
+      ARM_TENANT_ID: ${{ inputs.arm_tenant_id }}
+      TF_IN_AUTOMATION: "true"
+      TF_CLI_ARGS: "-no-color"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Terraform install
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Terraform initialize
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ inputs.backend_resource_group_name }}" \
+            -backend-config="storage_account_name=${{ inputs.backend_storage_account_name }}" \
+            -backend-config="container_name=${{ inputs.backend_container_name }}" \
+            -backend-config="key=${{ inputs.backend_key }}" \
+            -backend-config="access_key=${{ secrets.ARM_ACCESS_KEY }}" \
+            -backend=true
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Terraform format check 
+        run: |
+            terraform fmt -check
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Terraform validate
+        run: |
+          terraform validate
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Terraform plan
+        run: |
+          terraform plan -var-file=environment_vars/${{ inputs.env }}.tfvars -out=${{ inputs.env }}.tfplan \
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Upload terraform plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.env }}.tfplan
+          path: ${{ inputs.working_directory }}/${{ inputs.env }}.tfplan
+          include-hidden-files: true
+
+      - name: Cancelling parallel jobs if needed
+        if: failure()
+        uses: andymckay/cancel-workflow-action@v0.4
+
+  terraform_deploy:
+    name: Terraform deploy
+    if: ${{ inputs.allow_deploy }}
+    runs-on: "ubuntu-22.04"
+    needs: terraform_prepare
+    concurrency:
+      group: "${{ inputs.env }}-environment"
+      cancel-in-progress: false
+    env:
+      # --------------------------------------------------------------------------
+      # terraform environment variables (used by terraform)
+      # https://developer.hashicorp.com/terraform/cli/config/environment-variables
+      # --------------------------------------------------------------------------
+      ARM_CLIENT_ID: ${{ inputs.arm_client_id }}
+      ARM_CLIENT_SECRET: ${{ secrets.arm_client_secret }}
+      ARM_SUBSCRIPTION_ID: ${{ inputs.arm_subscription_id }}
+      ARM_TENANT_ID: ${{ inputs.arm_tenant_id }}
+      TF_IN_AUTOMATION: "true"
+      TF_CLI_ARGS: "-no-color"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download terraform plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.env }}.tfplan
+          path: ${{ inputs.working_directory }}
+
+      - name: Terraform initialize
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ inputs.backend_resource_group_name }}" \
+            -backend-config="storage_account_name=${{ inputs.backend_storage_account_name }}" \
+            -backend-config="container_name=${{ inputs.backend_container_name }}" \
+            -backend-config="key=${{ inputs.backend_key }}" \
+            -backend-config="access_key=${{ secrets.ARM_ACCESS_KEY }}" \
+            -backend=true
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Apply terraform plan
+        run: terraform apply -auto-approve=true ${{ inputs.env }}.tfplan
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Cancelling parallel jobs if needed
+        if: failure()
+        uses: andymckay/cancel-workflow-action@v0.4
