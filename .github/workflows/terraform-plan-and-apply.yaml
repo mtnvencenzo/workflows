@@ -54,6 +54,9 @@ on:
       arm_client_secret:
         description: "Azure arm client secret"
         required: true
+      terraform_module_repo_access_key_secret:
+        description: "SSH key to access the terraform module repository"
+        required: true
       
   workflow_dispatch:
 
@@ -94,7 +97,7 @@ jobs:
         # Supports fetching the packages. Not just the package.json git refs of legacy, but onerail scripts pulling packages.
         uses: webfactory/ssh-agent@v0.7.0
         with:
-          ssh-private-key: ${{ secrets.TERRAFORM_MODULE_REPO_ACCESS_KEY_SECRET }}
+          ssh-private-key: ${{ secrets.terraform_module_repo_access_key_secret }}
 
       - name: Terraform initialize
         id: init
