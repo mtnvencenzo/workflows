@@ -63,9 +63,6 @@ permissions:
   pull-requests: write
   repository-projects: read
 
-env:
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
   terraform_prepare:
     name: Terraform prepare
@@ -95,7 +92,7 @@ jobs:
 
       - name: Terraform module access
         run: |
-          git config --global url."https://oauth2:$GH_TOKEN@github.com".insteadOf "https://github.com"
+          git config --global url."https://oauth2:${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
 
       - name: Terraform initialize
         id: init
