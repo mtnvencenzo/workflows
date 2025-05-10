@@ -114,7 +114,7 @@ jobs:
       - name: Terraform format check
         id: format
         run: |
-            terraform fmt -check
+            terraform fmt -check -diff
         shell: bash
         working-directory: ${{ inputs.working_directory }}
 
