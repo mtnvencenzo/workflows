@@ -62,6 +62,9 @@ permissions:
   id-token: write
   pull-requests: write
 
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   terraform_prepare:
     name: Terraform prepare
@@ -88,6 +91,10 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Terraform module access
+        run: |
+          git config --global url."https://oauth2:$GH_TOKEN@github.com/mtnvencenzo/Terraform-Modules.git".insteadOf "ssh://git@github.com/mtnvencenzo/Terraform-Modules.git"
 
       - name: Terraform initialize
         id: init
