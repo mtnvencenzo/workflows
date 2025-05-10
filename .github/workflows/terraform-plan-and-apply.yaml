@@ -9,7 +9,7 @@ on:
         description: "Path to the root terraform directory containing the terraform files to deploy"
         required: true
         type: string
-      env:
+      environment_name:
         description: "The environment this is running in. This is used to determine the concurrency group for the job runs"
         required: true
         type: string
@@ -67,7 +67,7 @@ jobs:
     name: Terraform prepare
     runs-on: "ubuntu-22.04"
     concurrency:
-      group: "${{ inputs.env }}-environment"
+      group: "${{ inputs.environment_name }}-environment"
       cancel-in-progress: false
     env:
       # --------------------------------------------------------------------------
@@ -118,15 +118,15 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          terraform plan -var-file=environment_vars/${{ inputs.env }}.tfvars -out=${{ inputs.env }}.tfplan
+          terraform plan -var-file=environment_vars/${{ inputs.environment_name }}.tfvars -out=${{ inputs.environment_name }}.tfplan
         shell: bash
         working-directory: ${{ inputs.working_directory }}
 
       - name: Upload terraform plan artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.env }}.tfplan
-          path: ${{ inputs.working_directory }}/${{ inputs.env }}.tfplan
+          name: ${{ inputs.environment_name }}.tfplan
+          path: ${{ inputs.working_directory }}/${{ inputs.environment_name }}.tfplan
           include-hidden-files: true
 
       - name: Find terraform comment on pr
@@ -134,7 +134,7 @@ jobs:
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-includes: ${{ inputs.env }}-tfplan-comment
+          body-includes: ${{ inputs.environment_name }}-tfplan-comment
 
       - name: Add terraform comment on pr
         if: ${{ github.event_name == 'pull_request' }}
@@ -169,7 +169,7 @@ jobs:
     runs-on: "ubuntu-22.04"
     needs: terraform_prepare
     concurrency:
-      group: "${{ inputs.env }}-environment"
+      group: "${{ inputs.environment_name }}-environment"
       cancel-in-progress: false
     env:
       # --------------------------------------------------------------------------
@@ -190,7 +190,7 @@ jobs:
       - name: Download terraform plan artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.env }}.tfplan
+          name: ${{ inputs.environment_name }}.tfplan
           path: ${{ inputs.working_directory }}
 
       - name: Terraform initialize
@@ -205,7 +205,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Apply terraform plan
-        run: terraform apply -auto-approve=true ${{ inputs.env }}.tfplan
+        run: terraform apply -auto-approve=true ${{ inputs.environment_name }}.tfplan
         shell: bash
         working-directory: ${{ inputs.working_directory }}
 
