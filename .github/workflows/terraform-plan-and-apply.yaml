@@ -95,7 +95,7 @@ jobs:
 
       - name: Terraform module access
         run: |
-          git config --global url."https://oauth2:$GH_TOKEN@github.com/mtnvencenzo/Terraform-Modules.git".insteadOf "ssh://git@github.com/mtnvencenzo/Terraform-Modules.git"
+          git config --global url."https://oauth2:$GH_TOKEN@github.com/mtnvencenzo/Terraform-Modules.git".insteadOf "git::ssh://git@github.com/mtnvencenzo/Terraform-Modules.git"
 
       - name: Terraform initialize
         id: init
