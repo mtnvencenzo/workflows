@@ -92,7 +92,9 @@ jobs:
 
       - name: Terraform module access
         run: |
-          git config --global url."https://oauth2:TOKEN@github.com".insteadOf https://github.com
+          eval `ssh-agent -s`
+          ssh-add - <<< '${{ secrets.TERRAFORM_MODULE_REPO_ACCESS_KEY_SECRET }}'
+        shell: bash
 
       - name: Terraform initialize
         id: init
