@@ -61,6 +61,7 @@ permissions:
   contents: read
   id-token: write
   pull-requests: write
+  repository-projects: read
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
