@@ -161,7 +161,7 @@ jobs:
   
       - name: Cancelling parallel jobs if needed
         if: failure()
-        uses: andymckay/cancel-workflow-action@v0.4
+        uses: andymckay/cancel-action@v0.4
 
   terraform_deploy:
     name: Terraform deploy
@@ -211,4 +211,4 @@ jobs:
 
       - name: Cancelling parallel jobs if needed
         if: failure()
-        uses: andymckay/cancel-workflow-action@v0.4
+        uses: andymckay/cancel-action@v0.4
