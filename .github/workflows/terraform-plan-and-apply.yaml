@@ -90,9 +90,9 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
-      - name: Terraform module access
-        run: |
-          git config --global url."https://oauth2:${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
+      # - name: Terraform module access
+      #   run: |
+      #     git config --global url."https://oauth2:${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
 
       - name: Terraform initialize
         id: init
