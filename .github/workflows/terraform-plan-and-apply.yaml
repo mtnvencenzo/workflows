@@ -60,13 +60,6 @@ on:
       
   workflow_dispatch:
 
-permissions:
-  contents: read
-  id-token: write
-  issues: write
-  pull-requests: write
-  repository-projects: read
-
 jobs:
   terraform_prepare:
     name: Terraform prepare
@@ -144,9 +137,9 @@ jobs:
         id: fc
         uses: peter-evans/find-comment@v3
         with:
-          issue-number: ${{ github.event.pull_request.number }}
+          issue-number: 1
           body-includes: ${{ inputs.environment_name }}-tfplan-comment
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       - name: Add terraform comment on pr
         if: ${{ github.event_name == 'pull_request' }}
@@ -154,6 +147,7 @@ jobs:
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.GH_PAT }}
           body: |
             ### Terraform plan
             #### Terraform init `${{ steps.init.outputs.stdout }}`
