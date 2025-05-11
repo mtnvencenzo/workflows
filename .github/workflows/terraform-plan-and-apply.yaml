@@ -170,6 +170,7 @@ jobs:
 
   terraform_deploy:
     name: Terraform prd deploy
+    if: ${{ inputs.allow_deploy }}
     runs-on: "ubuntu-22.04"
     environment: ${{ inputs.environment_name }}
     needs: terraform_prepare
