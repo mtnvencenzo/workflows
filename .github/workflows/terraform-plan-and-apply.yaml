@@ -169,7 +169,7 @@ jobs:
         uses: andymckay/cancel-action@0.4
 
   terraform_deploy:
-    name: Terraform prd deploy
+    name: Terraform deploy ${{ inputs.environment_name }}
     if: ${{ inputs.allow_deploy }}
     runs-on: "ubuntu-22.04"
     environment: ${{ inputs.environment_name }}
