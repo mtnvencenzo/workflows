@@ -60,12 +60,12 @@ on:
       
   workflow_dispatch:
 
-permissions:
-  contents: read
-  id-token: write
-  issues: write
-  pull-requests: write
-  repository-projects: read
+# permissions:
+#   contents: read
+#   id-token: write
+#   issues: write
+#   pull-requests: write
+#   repository-projects: read
 
 jobs:
   terraform_prepare:
