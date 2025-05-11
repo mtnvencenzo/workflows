@@ -162,7 +162,7 @@ jobs:
             ```
             This is a comment created by the terraform plan workflow. It will be updated if the workflow is run again.
           edit-mode: replace
-          reaction: eyes
+          reactions: eyes
   
       - name: Cancelling parallel jobs if needed
         if: failure()
