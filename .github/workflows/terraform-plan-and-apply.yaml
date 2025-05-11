@@ -50,10 +50,6 @@ on:
         description: "Azure storage account key where the terraform state is stored"
         required: true
         type: string
-      repo:
-        description: "The repository this workflow is running in"
-        required: true
-        type: string
     secrets:
       arm_client_secret:
         description: "Azure arm client secret"
@@ -150,7 +146,6 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: ${{ inputs.environment_name }}-tfplan-comment
-          repository: ${{ inputs.repo }}
 
       - name: Add terraform comment on pr
         if: ${{ github.event_name == 'pull_request' }}
