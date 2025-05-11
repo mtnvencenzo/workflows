@@ -139,7 +139,7 @@ jobs:
         uses: peter-evans/find-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-includes: ${{ inputs.environment_name }}-tfplan-comment
+          body-includes: 'This is a comment created by the terraform-plan-and-apply.yaml workflow'
 
       - name: Terraform upsert comment on pr
         if: ${{ github.event_name == 'pull_request' }}
@@ -148,19 +148,25 @@ jobs:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            ### Terraform plan
-            #### Terraform init `${{ steps.init.outputs.stdout }}`
-            #### Terraform format `${{ steps.format.outputs.stdout }}`
-            #### Terraform validate `${{ steps.validate.outputs.stdout }}`
-            ```hcl
-            Formatting and validating terraform files
+            ### Terraform
+            #### Terraform init
+            ```bash
+            ${{ steps.init.outputs.stdout }}
+            ```
+            #### Terraform format
+            ```bash
             ${{ steps.format.outputs.stdout }}
+            ```
+            #### Terraform validate
+            ```bash
             ${{ steps.validate.outputs.stdout }}
-
-            Terraform plan
+            ```
+            #### Terraform plan
+            ```bash
             ${{ steps.plan.outputs.stdout }}
             ```
-            This is a comment created by the terraform plan workflow. It will be updated if the workflow is run again.
+
+            *This is a comment created by the terraform-plan-and-apply.yaml workflow. It will be updated if the workflow is run again.*
           edit-mode: replace
           reactions: eyes
   
