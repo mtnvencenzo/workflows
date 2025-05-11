@@ -148,7 +148,7 @@ jobs:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            ### Terraform
+            ### Terraform :rocket:
             #### Terraform init
             ```bash
             ${{ steps.init.outputs.stdout }}
