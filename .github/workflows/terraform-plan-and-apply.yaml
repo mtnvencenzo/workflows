@@ -140,15 +140,15 @@ jobs:
           include-hidden-files: true
 
       - name: Find terraform comment on pr
-        uses: peter-evans/find-comment@v3
         id: fc
+        uses: peter-evans/find-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: ${{ inputs.environment_name }}-tfplan-comment
 
       - name: Add terraform comment on pr
         if: ${{ github.event_name == 'pull_request' }}
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
@@ -175,7 +175,6 @@ jobs:
 
   terraform_deploy:
     name: Terraform deploy
-    if: ${{ inputs.allow_deploy }}
     runs-on: "ubuntu-22.04"
     needs: terraform_prepare
     concurrency:
@@ -204,13 +203,13 @@ jobs:
           path: ${{ inputs.working_directory }}
 
       - name: Terraform initialize
+        if: ${{ inputs.allow_deploy }}
         run: |
           terraform init \
             -backend-config="resource_group_name=${{ inputs.backend_resource_group_name }}" \
             -backend-config="storage_account_name=${{ inputs.backend_storage_account_name }}" \
             -backend-config="container_name=${{ inputs.backend_container_name }}" \
             -backend-config="key=${{ inputs.backend_blob_key }}" \
-            -backend-config="use_azuread_auth=true" \
             -backend=true
         shell: bash
         working-directory: ${{ inputs.working_directory }}
