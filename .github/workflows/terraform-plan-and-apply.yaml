@@ -65,7 +65,7 @@ permissions:
   id-token: write
   issues: write
   pull-requests: write
-  repository-projects: write
+  repository-projects: read
 
 jobs:
   terraform_prepare:
