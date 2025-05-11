@@ -134,12 +134,12 @@ jobs:
           include-hidden-files: true
 
       - name: Find terraform comment on pr
+        if: ${{ github.event_name == 'pull_request' }}
         id: fc
         uses: peter-evans/find-comment@v3
         with:
-          issue-number: 1
+          issue-number: ${{ github.event.pull_request.number }}
           body-includes: ${{ inputs.environment_name }}-tfplan-comment
-          token: ${{ secrets.GH_PAT }}
 
       - name: Add terraform comment on pr
         if: ${{ github.event_name == 'pull_request' }}
@@ -147,7 +147,6 @@ jobs:
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
-          token: ${{ secrets.GH_PAT }}
           body: |
             ### Terraform plan
             #### Terraform init `${{ steps.init.outputs.stdout }}`
