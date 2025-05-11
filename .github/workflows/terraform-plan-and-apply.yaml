@@ -87,7 +87,7 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
-      - name: Add ssh key to ssh-agent
+      - name: Terraform modules ssh key setup
         # Supports fetching the packages. Not just the package.json git refs of legacy, but onerail scripts pulling packages.
         uses: webfactory/ssh-agent@v0.7.0
         with:
@@ -126,14 +126,14 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
 
-      - name: Upload terraform plan artifact
+      - name: Terraform plan upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.environment_name }}.tfplan
           path: ${{ inputs.working_directory }}/${{ inputs.environment_name }}.tfplan
           include-hidden-files: true
 
-      - name: Find terraform comment on pr
+      - name: Terraform find comment on pr
         if: ${{ github.event_name == 'pull_request' }}
         id: fc
         uses: peter-evans/find-comment@v3
@@ -141,7 +141,7 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: ${{ inputs.environment_name }}-tfplan-comment
 
-      - name: Add terraform comment on pr
+      - name: Terraform upsert comment on pr
         if: ${{ github.event_name == 'pull_request' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
@@ -169,8 +169,9 @@ jobs:
         uses: andymckay/cancel-action@0.4
 
   terraform_deploy:
-    name: Terraform deploy
+    name: Terraform prd deploy
     runs-on: "ubuntu-22.04"
+    environment: ${{ inputs.environment_name }}
     needs: terraform_prepare
     concurrency:
       group: "${{ inputs.environment_name }}-environment"
@@ -204,7 +205,6 @@ jobs:
           ssh-private-key: ${{ secrets.terraform_module_repo_access_key_secret }}
 
       - name: Terraform initialize
-        if: ${{ inputs.allow_deploy }}
         run: |
           terraform init \
             -backend-config="resource_group_name=${{ inputs.backend_resource_group_name }}" \
@@ -215,10 +215,11 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
 
-      # - name: Apply terraform plan
-      #   run: terraform apply -auto-approve=true ${{ inputs.environment_name }}.tfplan
-      #   shell: bash
-      #   working-directory: ${{ inputs.working_directory }}
+      - name: Apply terraform plan
+        if: ${{ inputs.allow_deploy }}
+        run: terraform apply -auto-approve=true ${{ inputs.environment_name }}.tfplan
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
 
       - name: Cancelling parallel jobs if needed
         if: failure()
