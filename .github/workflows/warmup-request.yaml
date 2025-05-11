@@ -1,0 +1,69 @@
+name: Warmup request
+description: |
+  This workflow is used to warm up an application by making a request to a specified URL. It is designed to be called from other workflows to ensure that the application is warmed up before performing any operations.
+  It retries the request up to 5 times if it fails, with a 2-second delay between retries. The workflow can be triggered manually or by other workflows.
+on:
+  workflow_call:
+    inputs:
+      url:
+        description: "The url to call to perform the warmup request against"
+        required: true
+        type: string
+      statusCode:
+        description: "The url to call to perform the warmup request against"
+        default: "200"
+        type: string
+      allow_warmup:
+        description: "Allow the warmup to run. This is used to determine if the warmup job should run or not"
+        type: boolean
+        required: true
+      authHeader:
+        description: "The optional authentication header name to use for supplying the auth value"
+        default: ""
+        type: string
+      authValue:
+        description: "The optional authentication header value to use when supplying authentication"
+        default: ""
+        type: string
+      
+  workflow_dispatch:
+
+jobs:
+  warmup_request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Warmup request
+        shell: bash
+        run: |
+            echo '===================== warming up ========================'
+            echo "GET ${{ inputs.url }}"
+            echo '========================================================='
+
+            max_retries=5
+            retry_count=0
+            expected_status_code=${{ inputs.statusCode }}
+
+            while [ $retry_count -lt $max_retries ]; do
+
+                if [ '${{ inputs.authHeader }}' != '' ]; then
+                rs=$(curl -H "${{ inputs.authHeader }}: ${{ inputs.authValue }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                else
+                rs=$(curl --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                fi
+
+                if [ $rs -eq $expected_status_code ]; then
+                echo "Request was successful with status code $rs"
+                exit 0
+                else
+                echo "Request failed with status code $rs. Retrying..."
+                retry_count=$((retry_count + 1))
+                sleep 2 # Wait for 2 seconds before retrying
+                fi
+            done
+
+            if [ $retry_count -eq $max_retries ]; then
+                echo "Request failed after $max_retries retries. Exiting."
+            fi
+
+            exit -1
