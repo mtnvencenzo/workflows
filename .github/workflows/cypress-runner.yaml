@@ -78,7 +78,7 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: |
-          yarn cypress run --config baseUrl=${{ inputs.base_url }} --env b2cUrl=${{ inputs.oauth_authorize_url }} --env b2cTenantId=${{ inputs.oauth_tenant_id }} --env b2cClientId=${{ inputs.oauth_client_id }} --env b2cUserObjectId=${{ inputs.oauth_user_id }} --env b2cUserEmail=${{ inputs.oauth_user_email }} --env b2cUserPassword=${{ secrets.oauth_user_password }}
+          yarn cypress run --config baseUrl=${{ inputs.base_url }} --env b2cUrl=${{ inputs.oauth_base_url }} --env b2cTenantId=${{ inputs.oauth_tenant_id }} --env b2cClientId=${{ inputs.oauth_client_id }} --env b2cUserObjectId=${{ inputs.oauth_user_id }} --env b2cUserEmail=${{ inputs.oauth_user_email }} --env b2cUserPassword=${{ secrets.oauth_user_password }}
 
       - name: Cypress upload test results
         uses: actions/upload-artifact@v4
