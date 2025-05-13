@@ -50,6 +50,11 @@ on:
         description: "Azure storage account key where the terraform state is stored"
         required: true
         type: string
+      command_line_args:
+        description: "Command line arguments to pass to terraform"
+        required: false
+        type: string
+        default: ""
     secrets:
       arm_client_secret:
         description: "Azure arm client secret"
@@ -122,7 +127,7 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          terraform plan -var-file=environment_vars/${{ inputs.environment_name }}.tfvars -out=${{ inputs.environment_name }}.tfplan
+          terraform plan -var-file=environment_vars/${{ inputs.environment_name }}.tfvars -out=${{ inputs.environment_name }}.tfplan ${{ inputs.command_line_args }}
         shell: bash
         working-directory: ${{ inputs.working_directory }}
 
