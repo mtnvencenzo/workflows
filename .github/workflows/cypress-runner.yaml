@@ -1,0 +1,94 @@
+name: Cypress Runner
+description: |
+  d
+on:
+  workflow_call:
+    inputs:
+      environment_name:
+        description: ""
+        required: true
+        type: string
+      base_url:
+        description: ""
+        required: true
+        type: string
+      working_directory:
+        description: ""
+        required: true
+        type: string
+      allow_run:
+        description: ""
+        type: boolean
+        required: true
+      oauth_authorize_url:
+        description: ""
+        type: string
+        required: true
+      oauth_tenant_id:
+        description: ""
+        type: string
+        required: true
+      oauth_client_id:
+        description: ""
+        type: string
+        required: true
+      oauth_user_id:
+        description: ""
+        type: string
+        required: true
+      oauth_user_email:
+        description: ""
+        type: string
+        required: true
+      oauth_user_password:
+        description: ""
+        type: string
+        required: true
+      
+  workflow_dispatch:
+
+jobs:
+  cypress_run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cypress install yarn
+        shell: bash
+        run: |
+          npm install -g yarn
+
+      - name: Cypress install dependencies
+        shell: bash
+        run: |
+          yarn install
+
+      - name: Cypress run lint
+        shell: bash
+        run: |
+          yarn lint
+
+      - name: Cypress run
+        shell: bash
+        run: |
+          yarn cypress run --config baseUrl=${{ inputs.base_url }} --env b2cUrl=${{ inputs.oauth_authorize_url }} --env b2cTenantId=${{ inputs.oauth_tenant_id }} --env b2cClientId=${{ inputs.oauth_client_id }} --env b2cUserObjectId=${{ inputs.oauth_user_id }} --env b2cUserEmail=${{ inputs.oauth_user_email }} --env b2cUserPassword=${{ inputs.oauth_user_password }}
+
+      - name: Cypress upload test results
+        uses: actions/upload-artifact@v4
+        with:
+            name: ${{ inputs.environment_name }}.cypress-test-results
+            path: ${{ inputs.working_directory }}/results/
+            include-hidden-files: true
+
+      - name: Cypress upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+            name: ${{ inputs.environment_name }}.cypress-screenshots
+            path: ${{ inputs.working_directory }}/cypress/screenshots/
+            include-hidden-files: true
+
+      - name: Cypress upload videos
+        uses: actions/upload-artifact@v4
+        with:
+            name: ${{ inputs.environment_name }}.cypress-videos
+            path: ${{ inputs.working_directory }}/cypress/videos/
+            include-hidden-files: true
