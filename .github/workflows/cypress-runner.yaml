@@ -20,7 +20,7 @@ on:
         description: ""
         type: boolean
         required: true
-      oauth_authorize_url:
+      oauth_base_url:
         description: ""
         type: string
         required: true
