@@ -21,30 +21,11 @@ on:
         description: ""
         type: boolean
         required: true
-      oauth_base_url:
-        description: ""
+      command_line_args:
+        description: "Command line arguments to pass to cypress"
+        required: false
         type: string
-        required: true
-      oauth_tenant_id:
-        description: ""
-        type: string
-        required: true
-      oauth_client_id:
-        description: ""
-        type: string
-        required: true
-      oauth_user_id:
-        description: ""
-        type: string
-        required: true
-      oauth_user_email:
-        description: ""
-        type: string
-        required: true
-    secrets:
-      oauth_user_password:
-        description: ""
-        required: true
+        default: ""
 
   workflow_dispatch:
 
@@ -78,7 +59,7 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: |
-          yarn cypress run --config baseUrl=${{ inputs.base_url }} --env b2cUrl=${{ inputs.oauth_base_url }} --env b2cTenantId=${{ inputs.oauth_tenant_id }} --env b2cClientId=${{ inputs.oauth_client_id }} --env b2cUserObjectId=${{ inputs.oauth_user_id }} --env b2cUserEmail=${{ inputs.oauth_user_email }} --env b2cUserPassword=${{ secrets.oauth_user_password }}
+          yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}
 
       - name: Cypress upload test results
         uses: actions/upload-artifact@v4
