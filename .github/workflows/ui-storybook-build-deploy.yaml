@@ -1,0 +1,167 @@
+name: UI Storybook Build
+description: |
+    This workflow builds and deploys the UI Storybook documentation for a component library to a static website in azure storage.
+    This workflow is designed to be reusable and can be called from other workflows.
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: ""
+        required: true
+        type: string
+      environment_name:
+        description: "The environment this is running in. This is used to determine the concurrency group for the job runs"
+        required: true
+        type: string
+      node_version:
+        description: "The node version to use"
+        required: false
+        default: "23.5.x"
+        type: string
+      allow_deploy:
+        description: "Allow the deploy to run. This is used to determine if the deploy job should run or not"
+        required: true
+        type: boolean
+      arm_client_id:
+        description: "Azure arm client id"
+        required: true
+        type: string
+      arm_subscription_id:
+        description: "Azure arm subscription id"
+        required: true
+        type: string
+      arm_tenant_id:
+        description: "Azure arm tenant id"
+        required: true
+        type: string
+      artifact_name:
+        description: "The name of the artifact to upload"
+        required: false
+        type: string
+        default: "ui-build-artifact"
+      upload_artifact:
+        description: "Whether to upload the artifact or not"
+        required: true
+        type: boolean
+      storage_account_name:
+        description: "The name of the storage account to use"
+        required: true
+        type: string
+      cdn_resource_group:
+        description: "The resource group for the CDN"
+        required: true
+        type: string
+      cdn_profile_name:
+        description: "The name of the CDN profile"
+        required: true
+        type: string
+      cdn_endpoint_name:
+        description: "The name of the CDN endpoint"
+        required: true
+        type: string
+      cdn_domain_name:
+        description: "The domain name for the CDN"
+        required: true
+        type: string
+    secrets:
+      arm_client_secret:
+        description: "Azure arm client secret"
+        required: true
+
+
+  workflow_dispatch:
+
+jobs:
+  storybook_build:
+    name: Build storybook docs
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '${{ inputs.node_version }}'
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Install
+        working-directory: ${{ inputs.working_directory }}
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        working-directory: ${{ inputs.working_directory }}
+        run: yarn build-storybook-docs
+
+      - name: Prepare artifact
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          # Create an artifact directory and new copy of the dist folder
+          mkdir -p artifact/
+          mkdir -p artifact/storybook-static
+          cp -r storybook-static/. artifact/storybook-static/
+          
+          echo "Files copied to artifact directory including distribution and setup files"
+          echo "------------------------------------------------------------------"
+          cd artifact
+          ls -R
+
+      - name: Upload artifact
+        if: ${{ inputs.upload_artifact == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.working_directory }}/artifact/storybook-static
+          include-hidden-files: true
+          if-no-files-found: error
+
+  storybook_deploy:
+    name: Storybook deploy [prd]
+    runs-on: "ubuntu-latest"
+    environment: ${{ inputs.environment_name }}
+    needs: storybook_build
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Download storybook artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.working_directory }}/deploy_artifact
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ inputs.arm_client_id }}","clientSecret":"${{ secrets.arm_client_secret }}","subscriptionId":"${{ inputs.arm_subscription_id }}","tenantId":"${{ inputs.arm_tenant_id }}"}'
+
+      - name: Push to storage account
+        if: ${{ inputs.allow_deploy }}
+        run: |
+            az storage blob upload-batch \
+              --account-name '${{ inputs.storage_account_name }}' \
+              --destination '$web' \
+              --source '${{ inputs.working_directory }}/deploy_artifact/${{ inputs.artifact_name }}' \
+              --overwrite \
+              --pattern '*'
+
+      - name: Purge cdn cache
+        if: ${{ inputs.allow_deploy && inputs.cdn_resource_group != '' }}
+        run: |
+            az afd endpoint purge \
+              --resource-group '${{ inputs.cdn_resource_group }}' \
+              --profile-name '${{ inputs.cdn_profile_name }}' \
+              --endpoint-name '${{ inputs.cdn_endpoint_name }}' \
+              --domains '${{ inputs.cdn_domain_name }}' \
+              --content-paths '/*' \
+              --no-wait true
+
