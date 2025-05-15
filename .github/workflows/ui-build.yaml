@@ -81,10 +81,19 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: |
+          # Create an artifact directory and new copy of the dist folder
           mkdir -p artifact
           cp -r dist artifact/
-          cp .env artifact/
-          cp env.sh artifact/
-          cp .nginx-default.conf artifact/
-          cp Dockerfile-CI artifact/
-          ls -la artifact
+          
+          # Remove brackets and split the string into an array
+          IFS=', ' read -r -a files <<< "$(echo "$json_array" | tr -d '[]"')"
+
+          # Iterate through the array and copy each file
+          for file in "${files[@]}"; do
+            if [[ -f "$file" ]]; then
+              cp "$file" "artifact/"
+              echo "Copied '$file' to 'artifact/'"
+            else
+              echo "File '$file' not found."
+            fi
+          done
