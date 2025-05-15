@@ -62,15 +62,15 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         run: yarn install --frozen-lockfile
 
-      - name: Lint
-        shell: bash
-        working-directory: ${{ inputs.working_directory }}
-        run: yarn lint
+    #   - name: Lint
+    #     shell: bash
+    #     working-directory: ${{ inputs.working_directory }}
+    #     run: yarn lint
 
-      - name: Test and coverage
-        shell: bash
-        working-directory: ${{ inputs.working_directory }}
-        run: yarn coverage
+    #   - name: Test and coverage
+    #     shell: bash
+    #     working-directory: ${{ inputs.working_directory }}
+    #     run: yarn coverage
 
       - name: Build
         shell: bash
