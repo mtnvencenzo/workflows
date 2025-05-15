@@ -1,0 +1,79 @@
+name: UI Build
+description: |
+    This workflow builds the UI application. It installs dependencies, runs linting, tests, builds the application and uploads the build artifact.
+    This workflow is designed to be reusable and can be called from other workflows.
+on:
+  workflow_call:
+    inputs:
+      environment_name:
+        description: "The environment this is running in."
+        required: true
+        type: string
+      working_directory:
+        description: ""
+        required: true
+        type: string
+      node_version:
+        description: "The node version to use"
+        required: false
+        default: "23.5.x"
+        type: string
+    secrets:
+      azure_artifacts_base64_pat_token:
+        description: "The base64 encoded PAT token for Azure Artifacts"
+        required: false
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '${{ inputs.node_version }}'
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Authenticate to azure artifacts feed
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          echo "@vecchi:registry=https://pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/" > .npmrc
+          echo "; begin auth token" >> .npmrc
+          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/:username=vecchi" >> .npmrc
+          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/:_password=${{ secrets.azure_artifacts_base64_pat_token }}" >> .npmrc
+          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/:email=noreply@cezzis.com" >> .npmrc
+          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/:username=vecchi" >> .npmrc
+          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/:_password=${{ secrets.azure_artifacts_base64_pat_token }}" >> .npmrc
+          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/:email=noreply@cezzis.com" >> .npmrc
+          echo "; end auth token" >> .npmrc
+
+          echo "" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: Install
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+        run: yarn lint
+
+      - name: Test and coverage
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+        run: yarn coverage
+
+      - name: Build
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+        run: yarn build:prod
