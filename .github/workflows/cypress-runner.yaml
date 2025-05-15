@@ -26,6 +26,10 @@ on:
         required: false
         type: string
         default: ""
+    secrets:
+      cypress_user_password:
+        description: "Cypress user password"
+        required: false
 
   workflow_dispatch:
 
@@ -59,7 +63,7 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: |
-          yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}
+          yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}${{ secrets.cypress_user_password }}
 
       - name: Cypress upload test results
         uses: actions/upload-artifact@v4
