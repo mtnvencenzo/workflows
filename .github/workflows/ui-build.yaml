@@ -78,6 +78,7 @@ jobs:
         run: yarn build:prod
 
       - name: Prepare artifact
+        if: ${{ inputs.setup_files != '' }}
         shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: |
@@ -86,7 +87,7 @@ jobs:
           cp -r dist artifact/
           
           # Remove brackets and split the string into an array
-          IFS=', ' read -r -a files <<< "$(echo "$json_array" | tr -d '[]"')"
+          IFS=', ' read -r -a files <<< "$(echo "${{ inputs.setup_files }}" | tr -d '[]"')"
 
           # Iterate through the array and copy each file
           for file in "${files[@]}"; do
