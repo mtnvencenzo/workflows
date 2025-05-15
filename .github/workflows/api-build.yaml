@@ -34,22 +34,26 @@ on:
 
       azure_nuget_feed_source:
         description: "The NuGet feed URL"
-        required: true
+        required: false
+        default: ""
         type: string
 
       azure_nuget_feed_name:
         description: "The name of the NuGet feed"
-        required: true
+        required: false
+        default: ""
         type: string
 
       github_nuget_feed_source:
         description: "The NuGet feed URL"
-        required: true
+        required: false
+        default: ""
         type: string
 
       github_nuget_feed_name:
         description: "The name of the NuGet feed"
-        required: true
+        required: false
+        default: ""
         type: string
 
       project_path:
@@ -73,11 +77,11 @@ on:
     secrets:
       azure_artifacts_base64_pat_token:
         description: "The base64 encoded PAT token for Azure Artifacts"
-        required: true
+        required: false
 
       github_packages_pat_token:
         description: "The PAT token for github packages"
-        required: true
+        required: false
 
   workflow_dispatch:
 
