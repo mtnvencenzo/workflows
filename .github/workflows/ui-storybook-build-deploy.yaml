@@ -148,12 +148,12 @@ jobs:
       - name: Push to storage account
         working-directory: ${{ inputs.working_directory }}
         run: |
-            ls -R ./
+            ls ./deploy_artifact
         
             az storage blob upload-batch \
               --account-name '${{ inputs.storage_account_name }}' \
               --destination '$web' \
-              --source './deploy_artifact/${{ inputs.artifact_name }}' \
+              --source './deploy_artifact' \
               --overwrite \
               --pattern '*'
 
