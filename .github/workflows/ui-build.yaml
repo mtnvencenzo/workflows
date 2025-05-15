@@ -60,7 +60,7 @@ jobs:
         run: npm install -g yarn
 
       - name: Authenticate npm feed
-        if: ${{ inputs.use_npm_auth != '' }}
+        if: ${{ inputs.use_npm_auth }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           echo "@mtnvencenzo:registry=https://npm.pkg.github.com" > .npmrc
