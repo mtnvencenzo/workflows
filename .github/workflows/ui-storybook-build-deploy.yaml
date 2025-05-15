@@ -124,6 +124,7 @@ jobs:
 
   storybook_deploy:
     name: Storybook deploy [prd]
+    if: ${{ inputs.allow_deploy }}
     runs-on: "ubuntu-latest"
     environment: ${{ inputs.environment_name }}
     needs: storybook_build
@@ -145,7 +146,6 @@ jobs:
           creds: '{"clientId":"${{ inputs.arm_client_id }}","clientSecret":"${{ secrets.arm_client_secret }}","subscriptionId":"${{ inputs.arm_subscription_id }}","tenantId":"${{ inputs.arm_tenant_id }}"}'
 
       - name: Push to storage account
-        if: ${{ inputs.allow_deploy }}
         run: |
             az storage blob upload-batch \
               --account-name '${{ inputs.storage_account_name }}' \
@@ -155,7 +155,7 @@ jobs:
               --pattern '*'
 
       - name: Purge cdn cache
-        if: ${{ inputs.allow_deploy && inputs.cdn_resource_group != '' }}
+        if: ${{ inputs.cdn_resource_group != '' }}
         run: |
             az afd endpoint purge \
               --resource-group '${{ inputs.cdn_resource_group }}' \
