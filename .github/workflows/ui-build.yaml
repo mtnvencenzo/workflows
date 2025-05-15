@@ -82,9 +82,9 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         run: |
           mkdir -p artifact
-          cp -r dist/* artifact/dist
-          cp -r .env artifact/
-          cp -r env.sh artifact/
-          cp -r .nginx-default.conf artifact/
-          cp -r Dockerfile-CI artifact/
+          cp -r dist artifact/
+          cp .env artifact/
+          cp env.sh artifact/
+          cp .nginx-default.conf artifact/
+          cp Dockerfile-CI artifact/
           ls -la artifact
