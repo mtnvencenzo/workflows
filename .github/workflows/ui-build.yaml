@@ -37,7 +37,7 @@ jobs:
       - name: Install yarn
         run: npm install -g yarn
 
-      - name: Authenticate to azure artifacts feed
+      - name: Authenticate npm feed
         shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: |
