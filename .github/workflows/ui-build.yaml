@@ -14,6 +14,9 @@ on:
         required: false
         default: "23.5.x"
         type: string
+      setup_files:
+        required: false
+        type: string
     secrets:
       azure_artifacts_base64_pat_token:
         description: "The base64 encoded PAT token for Azure Artifacts"
@@ -73,3 +76,15 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: yarn build:prod
+
+      - name: Prepare artifact
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          mkdir -p artifact
+          cp -r dist/* artifact/dist
+          cp -r .env artifact/
+          cp -r env.sh artifact/
+          cp -r .nginx-default.conf artifact/
+          cp -r Dockerfile-CI artifact/
+          ls -la artifact
