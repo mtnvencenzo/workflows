@@ -93,7 +93,6 @@ jobs:
         run: yarn build:prod
 
       - name: Prepare artifact
-        if: ${{ inputs.setup_files != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           # Create an artifact directory and new copy of the dist folder
