@@ -68,7 +68,7 @@ on:
 jobs:
   terraform_prepare:
     name: Terraform prepare
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-latest"
     concurrency:
       group: "${{ inputs.environment_name }}-environment"
       cancel-in-progress: false
@@ -182,7 +182,7 @@ jobs:
   terraform_deploy:
     name: Terraform deploy [prd]
     if: ${{ inputs.allow_deploy }}
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-latest"
     environment: ${{ inputs.environment_name }}
     needs: terraform_prepare
     concurrency:

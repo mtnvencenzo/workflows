@@ -1,0 +1,68 @@
+name: Docker build and push
+description: |
+    d
+on:
+  workflow_call:
+    inputs:
+      image_repository:
+        description: ""
+        required: true
+        type: string
+      container_registry:
+        description: ""
+        required: true
+        type: string
+      artifact_name:
+        description: ""
+        type: string
+        required: true
+      docker_file_name:
+        description: ""
+        required: true
+        type: string
+      allow_build_and_push:
+        description: ""
+        type: boolean
+        required: true
+    
+  workflow_dispatch:
+
+jobs:
+  warmup_request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Warmup request
+        shell: bash
+        run: |
+            echo '===================== warming up ========================'
+            echo "GET ${{ inputs.url }}"
+            echo '========================================================='
+
+            max_retries=5
+            retry_count=0
+            expected_status_code=${{ inputs.statusCode }}
+
+            while [ $retry_count -lt $max_retries ]; do
+
+                if [ '${{ inputs.authHeader }}' != '' ]; then
+                rs=$(curl -H "${{ inputs.authHeader }}: ${{ inputs.authValue }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                else
+                rs=$(curl --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                fi
+
+                if [ $rs -eq $expected_status_code ]; then
+                echo "Request was successful with status code $rs"
+                exit 0
+                else
+                echo "Request failed with status code $rs. Retrying..."
+                retry_count=$((retry_count + 1))
+                sleep 2 # Wait for 2 seconds before retrying
+                fi
+            done
+
+            if [ $retry_count -eq $max_retries ]; then
+                echo "Request failed after $max_retries retries. Exiting."
+            fi
+
+            exit -1
