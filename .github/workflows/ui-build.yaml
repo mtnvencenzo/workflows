@@ -63,17 +63,8 @@ jobs:
         if: ${{ inputs.use_npm_auth != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
-          echo "@vecchi:registry=https://pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/" > .npmrc
-          echo "; begin auth token" >> .npmrc
-          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/:username=vecchi" >> .npmrc
-          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/:_password=${{ secrets.azure_artifacts_base64_pat_token }}" >> .npmrc
-          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/:email=noreply@cezzis.com" >> .npmrc
-          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/:username=vecchi" >> .npmrc
-          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/:_password=${{ secrets.azure_artifacts_base64_pat_token }}" >> .npmrc
-          echo "//pkgs.dev.azure.com/vecchi/_packaging/global/npm/:email=noreply@cezzis.com" >> .npmrc
-          echo "; end auth token" >> .npmrc
-
-          echo "" >> .npmrc
+          echo "@mtnvencenzo:registry=https://npm.pkg.github.com" > .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
 
       - name: Install
