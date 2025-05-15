@@ -17,6 +17,15 @@ on:
       setup_files:
         required: false
         type: string
+      artifact_name:
+        description: "The name of the artifact to upload"
+        required: false
+        type: string
+        default: "ui-build-artifact"
+      upload_artifact:
+        description: "Whether to upload the artifact or not"
+        required: true
+        type: boolean
     secrets:
       azure_artifacts_base64_pat_token:
         description: "The base64 encoded PAT token for Azure Artifacts"
@@ -98,3 +107,12 @@ jobs:
               echo "File '$file' not found."
             fi
           done
+
+      - name: Upload artifact
+        if: ${{ inputs.upload_artifact == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.working_directory }}/artifact
+          include-hidden-files: true
+          if-no-files-found: error
