@@ -146,11 +146,12 @@ jobs:
           creds: '{"clientId":"${{ inputs.arm_client_id }}","clientSecret":"${{ secrets.arm_client_secret }}","subscriptionId":"${{ inputs.arm_subscription_id }}","tenantId":"${{ inputs.arm_tenant_id }}"}'
 
       - name: Push to storage account
+        working-directory: ${{ inputs.working_directory }}
         run: |
             az storage blob upload-batch \
               --account-name '${{ inputs.storage_account_name }}' \
               --destination '$web' \
-              --source '${{ inputs.working_directory }}/deploy_artifact/${{ inputs.artifact_name }}' \
+              --source './deploy_artifact/${{ inputs.artifact_name }}' \
               --overwrite \
               --pattern '*'
 
