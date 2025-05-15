@@ -62,7 +62,7 @@ jobs:
           # Create an artifact directory and new copy of the dist folder
           mkdir -p artifact/
           mkdir -p artifact/storybook-static
-          cp -r storybook-static/ artifact/storybook-static
+          cp -r storybook-static/. artifact/storybook-static/
           
           echo "Files copied to artifact directory including distribution and setup files"
           echo "------------------------------------------------------------------"
