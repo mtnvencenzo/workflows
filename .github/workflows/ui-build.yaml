@@ -5,10 +5,6 @@ description: |
 on:
   workflow_call:
     inputs:
-      environment_name:
-        description: "The environment this is running in."
-        required: true
-        type: string
       working_directory:
         description: ""
         required: true
