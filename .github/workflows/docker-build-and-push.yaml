@@ -13,7 +13,7 @@ on:
         description: "Path to a workding directory to use for the docker build"
         required: true
         type: string
-      image_repository:
+      acr_image_repository:
         description: "The name of the image repository to use"
         required: true
         type: string
@@ -79,5 +79,5 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         run: |
           ls -R
-          docker build -f ${{ inputs.docker_file_name }} -t ${{ inputs.acr_registry_login_server }}/${{ inputs.image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }} .
-          docker push ${{ secrets.acr_registry_login_server }}/${{ inputs.image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
+          docker build -f ${{ inputs.docker_file_name }} -t ${{ inputs.acr_registry_login_server }}/${{ inputs.acr_image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }} .
+          docker push ${{ secrets.acr_registry_login_server }}/${{ inputs.acr_image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
