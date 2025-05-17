@@ -108,6 +108,11 @@ jobs:
             fi
           done
 
+          echo "Files copied to artifact directory including distribution and setup files"
+          echo "------------------------------------------------------------------"
+          ls -R
+
+
       - name: Upload artifact
         if: ${{ inputs.upload_artifact == true }}
         uses: actions/upload-artifact@v4
