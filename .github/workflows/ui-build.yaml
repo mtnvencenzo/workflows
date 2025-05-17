@@ -109,6 +109,7 @@ jobs:
 
           echo "Files copied to artifact directory including distribution and setup files"
           echo "------------------------------------------------------------------"
+          cd artifact
           ls -R
 
 

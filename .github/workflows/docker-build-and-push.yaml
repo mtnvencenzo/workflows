@@ -74,10 +74,14 @@ jobs:
           username: ${{ secrets.acr_registry_login_username }}
           password: ${{ secrets.acr_registry_login_password }}
 
+      - name: List artifact
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          ls -R
+
       - name: Build and push to ACR
         if: ${{ inputs.allow_build_and_push }}
         working-directory: ${{ inputs.working_directory }}
         run: |
-          ls -R
           docker build -f ${{ inputs.docker_file_name }} -t ${{ inputs.acr_registry_login_server }}/${{ inputs.acr_image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }} .
           docker push ${{ secrets.acr_registry_login_server }}/${{ inputs.acr_image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
