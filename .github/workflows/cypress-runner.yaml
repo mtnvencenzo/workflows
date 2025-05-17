@@ -61,7 +61,7 @@ jobs:
           yarn lint
 
       - name: Cypress run
-        if: ${{ inputs.allow_run }}\
+        if: ${{ inputs.allow_run }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}${{ secrets.cypress_user_password }}
