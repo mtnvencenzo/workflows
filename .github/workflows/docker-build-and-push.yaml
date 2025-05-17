@@ -75,6 +75,7 @@ jobs:
           password: ${{ secrets.acr_registry_login_password }}
 
       - name: Build and push to ACR
+        if: ${{ inputs.allow_build_and_push }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           ls -R
