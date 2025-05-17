@@ -65,7 +65,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.artifact_name }}
-          path: ${{ inputs.working_directory }}
+          path: ${{ inputs.working_directory }}/docker_artifact
 
       - name: Acr Login
         uses: azure/docker-login@v2
@@ -75,13 +75,13 @@ jobs:
           password: ${{ secrets.acr_registry_login_password }}
 
       - name: List artifact
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.working_directory }}/docker_artifact
         run: |
           ls -R
 
       - name: Build and push to ACR
         if: ${{ inputs.allow_build_and_push }}
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.working_directory }}/docker_artifact
         run: |
           docker build -f ${{ inputs.docker_file_name }} -t ${{ inputs.acr_registry_login_server }}/${{ inputs.acr_image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }} .
           docker push ${{ secrets.acr_registry_login_server }}/${{ inputs.acr_image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
