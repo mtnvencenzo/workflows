@@ -32,9 +32,12 @@ jobs:
   warmup_request:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Warmup request
-        shell: bash
         run: |
             echo '===================== warming up ========================'
             echo "GET ${{ inputs.url }}"

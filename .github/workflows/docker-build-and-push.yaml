@@ -1,68 +1,82 @@
 name: Docker build and push
 description: |
-    d
+  This workflow builds and pushes a docker image to an Azure Container Registry (ACR) using the Docker CLI.
+  This workflow is designed to be reusable and can be called from other workflows.
 on:
   workflow_call:
     inputs:
-      image_repository:
-        description: ""
-        required: true
-        type: string
-      container_registry:
-        description: ""
-        required: true
-        type: string
       artifact_name:
-        description: ""
+        description: "The name of the build artifact to download"
+        required: true
+        type: string
+      working_directory:
+        description: "Path to a workding directory to use for the docker build"
+        required: true
+        type: string
+      image_repository:
+        description: "The name of the image repository to use"
+        required: true
+        type: string
+      acr_registry_login_server:
+        description: "The login server for the ACR registry"
+        type: string
+        required: true
+      image_name:
+        description: "The name of the image to build and push"
+        type: string
+        required: true
+      image_tag:
+        description: "The tag to use for the image"
         type: string
         required: true
       docker_file_name:
-        description: ""
+        description: "The name of the docker file to use"
         required: true
         type: string
       allow_build_and_push:
-        description: ""
+        description: "Allow the build and push to run. This is used to determine if the build and push job should run or not"
         type: boolean
+        required: true
+
+    secrets:
+      acr_registry_login_username:
+        description: "The login server for the ACR registry"
+        required: true
+      acr_registry_login_password:
+        description: "The login server for the ACR registry"
         required: true
     
   workflow_dispatch:
 
 jobs:
-  warmup_request:
+  docker_build_and_push:
+    name: Build and push docker image
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Warmup request
+    defaults:
+      run:
         shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}.tfplan
+          path: ${{ inputs.working_directory }}
+
+      - name: Acr Login
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ inputs.acr_registry_login_server }}
+          username: ${{ secrets.acr_registry_login_username }}
+          password: ${{ secrets.acr_registry_login_password }}
+
+      - name: Build and push to ACR
+        working-directory: ${{ inputs.working_directory }}
         run: |
-            echo '===================== warming up ========================'
-            echo "GET ${{ inputs.url }}"
-            echo '========================================================='
-
-            max_retries=5
-            retry_count=0
-            expected_status_code=${{ inputs.statusCode }}
-
-            while [ $retry_count -lt $max_retries ]; do
-
-                if [ '${{ inputs.authHeader }}' != '' ]; then
-                rs=$(curl -H "${{ inputs.authHeader }}: ${{ inputs.authValue }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
-                else
-                rs=$(curl --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
-                fi
-
-                if [ $rs -eq $expected_status_code ]; then
-                echo "Request was successful with status code $rs"
-                exit 0
-                else
-                echo "Request failed with status code $rs. Retrying..."
-                retry_count=$((retry_count + 1))
-                sleep 2 # Wait for 2 seconds before retrying
-                fi
-            done
-
-            if [ $retry_count -eq $max_retries ]; then
-                echo "Request failed after $max_retries retries. Exiting."
-            fi
-
-            exit -1
+          ls -R
+          docker build -f ${{ inputs.docker_file_name }} -t ${{ inputs.acr_registry_login_server }}/${{ inputs.image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }} .
+          docker push ${{ secrets.acr_registry_login_server }}/${{ inputs.image_repository }}/${{ inputs.image_name }}:${{ inputs.image_tag }}

@@ -37,6 +37,11 @@ jobs:
   build:
     name: Build app
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,7 +55,6 @@ jobs:
         run: npm install -g yarn
 
       - name: Authenticate npm feed
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: |
           echo "@vecchi:registry=https://pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/" > .npmrc
@@ -67,28 +71,23 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: yarn install --frozen-lockfile
 
       - name: Lint
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: yarn lint
 
       - name: Test and coverage
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: yarn coverage
 
       - name: Build
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: yarn build:prod
 
       - name: Prepare artifact
         if: ${{ inputs.setup_files != '' }}
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: |
           # Create an artifact directory and new copy of the dist folder

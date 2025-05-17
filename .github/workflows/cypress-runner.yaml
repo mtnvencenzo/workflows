@@ -37,31 +37,31 @@ jobs:
   cypress_run:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Cypress install yarn
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
         run: |
           npm install -g yarn
 
-      - name: Cypress install dependencies
-        shell: bash
+      - name: Cypress install dependencies\
         working-directory: ${{ inputs.working_directory }}
         run: |
           yarn install
 
-      - name: Cypress run lint
-        shell: bash
+      - name: Cypress run lint\
         working-directory: ${{ inputs.working_directory }}
         run: |
           yarn lint
 
       - name: Cypress run
-        if: ${{ inputs.allow_run }}
-        shell: bash
+        if: ${{ inputs.allow_run }}\
         working-directory: ${{ inputs.working_directory }}
         run: |
           yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}${{ secrets.cypress_user_password }}

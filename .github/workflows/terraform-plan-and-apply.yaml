@@ -69,9 +69,15 @@ jobs:
   terraform_prepare:
     name: Terraform prepare
     runs-on: "ubuntu-latest"
+
+    defaults:
+      run:
+        shell: bash
+
     concurrency:
       group: "${{ inputs.environment_name }}-environment"
       cancel-in-progress: false
+
     env:
       # --------------------------------------------------------------------------
       # terraform environment variables (used by terraform)
@@ -83,6 +89,9 @@ jobs:
       ARM_TENANT_ID: ${{ inputs.arm_tenant_id }}
       TF_IN_AUTOMATION: "true"
       TF_CLI_ARGS: "-no-color"
+
+
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -107,28 +116,24 @@ jobs:
             -backend-config="container_name=${{ inputs.backend_container_name }}" \
             -backend-config="key=${{ inputs.backend_blob_key }}" \
             -backend=true
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
 
       - name: Terraform format check
         id: format
         run: |
             terraform fmt -check -diff
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
 
       - name: Terraform validate
         id: validate
         run: |
           terraform validate
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
 
       - name: Terraform plan
         id: plan
         run: |
           terraform plan -var-file=environment_vars/${{ inputs.environment_name }}.tfvars -out=${{ inputs.environment_name }}.tfplan ${{ inputs.command_line_args }}
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
 
       - name: Terraform plan upload artifact
@@ -185,9 +190,15 @@ jobs:
     runs-on: "ubuntu-latest"
     environment: ${{ inputs.environment_name }}
     needs: terraform_prepare
+
+    defaults:
+      run:
+        shell: bash
+
     concurrency:
       group: "${{ inputs.environment_name }}-environment"
       cancel-in-progress: false
+
     env:
       # --------------------------------------------------------------------------
       # terraform environment variables (used by terraform)
@@ -224,13 +235,11 @@ jobs:
             -backend-config="container_name=${{ inputs.backend_container_name }}" \
             -backend-config="key=${{ inputs.backend_blob_key }}" \
             -backend=true
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
 
       - name: Apply terraform plan
         if: ${{ inputs.allow_deploy }}
         run: terraform apply -auto-approve=true ${{ inputs.environment_name }}.tfplan
-        shell: bash
         working-directory: ${{ inputs.working_directory }}
 
       - name: Cancelling parallel jobs if needed
