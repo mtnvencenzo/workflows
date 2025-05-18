@@ -1,7 +1,7 @@
-name: Dotnet Api Build
+name: Dotnet Nuget Pack and Push
 description: |
-    This workflow builds dotnet api applications. It installs dependencies, runs tests, builds the application and uploads the build artifact.
-    This workflow is designed to be reusable and can be called from other workflows.
+  This workflow builds, tests, and packages a .NET project into a NuGet package. It also pushes the package to specified NuGet feeds (Azure Artifacts and GitHub Packages). The workflow is designed to be reusable and can be called from other workflows.
+  This workflow is designed to be reusable and can be called from other workflows.
 on:
   workflow_call:
     inputs:
@@ -9,7 +9,7 @@ on:
         description: "The name of the artifact to upload"
         required: true
         type: string
-        default: "dotnet-build-artifact"
+        default: "dotnet-nuget-artifact"
 
       environment_name:
         description: "The environment this is running in. This is used to determine the concurrency group for the job runs"
