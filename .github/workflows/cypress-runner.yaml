@@ -45,17 +45,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Cypress install yarn
+      - name: Install yarn
         working-directory: ${{ inputs.working_directory }}
         run: |
           npm install -g yarn
 
-      - name: Cypress install dependencies\
+      - name: Yarn install dependencies
         working-directory: ${{ inputs.working_directory }}
         run: |
           yarn install
 
-      - name: Cypress run lint\
+      - name: Lint
         working-directory: ${{ inputs.working_directory }}
         run: |
           yarn lint
@@ -66,7 +66,7 @@ jobs:
         run: |
           yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}${{ secrets.cypress_user_password }}
 
-      - name: Cypress upload test results
+      - name: Upload test results
         if: ${{ inputs.allow_run }}
         uses: actions/upload-artifact@v4
         with:
@@ -74,7 +74,7 @@ jobs:
             path: ${{ inputs.working_directory }}/results/
             include-hidden-files: true
 
-      - name: Cypress upload screenshots
+      - name: Upload screenshots
         if: ${{ inputs.allow_run }}
         uses: actions/upload-artifact@v4
         with:
@@ -82,7 +82,7 @@ jobs:
             path: ${{ inputs.working_directory }}/cypress/screenshots/
             include-hidden-files: true
 
-      - name: Cypress upload videos
+      - name: Upload videos
         if: ${{ inputs.allow_run }}
         uses: actions/upload-artifact@v4
         with:
