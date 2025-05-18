@@ -9,16 +9,19 @@ on:
         description: ""
         required: true
         type: string
-        dotnet_version:
-          description: "The dotnet version to use"
-          type: string
-          required: false
-          default: "9.x"
+
+      dotnet_version:
+        description: "The dotnet version to use"
+        type: string
+        required: false
+        default: "9.x"
+
       nuget_file_path:
         description: "Path to the NuGet.Config file"
         required: true
         type: string
         default: "./Nuget.config"
+        
       project_path:
         required: true
         type: string
