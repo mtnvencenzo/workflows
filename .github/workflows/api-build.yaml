@@ -46,16 +46,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-    - name: Setup .NET 9.x
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ inputs.dotnet_version }}
+      - name: Setup .NET 9.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet_version }}
 
-    - name: Install dependencies
-      working-directory: ${{ inputs.working_directory }}
-      run: dotnet restore ${{ project_path }} --configfile "${{ inputs.nuget_file_path }}"
-
-
+      - name: Install dependencies
+        working-directory: ${{ inputs.working_directory }}
+        run: dotnet restore ${{ inputs.project_path }} --configfile "${{ inputs.nuget_file_path }}"
 
 
 
