@@ -76,6 +76,10 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         run: dotnet build ${{ inputs.project_path }} --no-restore --configuration Release
 
+      - name: Test
+        working-directory: ${{ inputs.working_directory }}
+        run: dotnet test ./**/*.[Uu]nit.[Tt]ests/*.csproj --no-build --configuration Release --collect:"XPlat Code Coverage" -v:q -l:"console;verbosity=normal" --no-restore
+
     # - name: Upload artifact
     #   if: ${{ inputs.upload_artifact == true }}
     #   uses: actions/upload-artifact@v4
