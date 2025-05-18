@@ -88,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-test-results
-          path: ./test_results
+          path: ${{ inputs.working_directory }}/test_results
 
     # - name: Upload artifact
     #   if: ${{ inputs.upload_artifact == true }}
