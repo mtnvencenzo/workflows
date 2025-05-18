@@ -100,6 +100,7 @@ jobs:
           dotnet-version: ${{ inputs.dotnet_version }}
 
       - name: Auth Azure NuGet
+        if: ${{ inputs.azure_nuget_feed_source != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           base64_decoded=$(echo "${{ secrets.azure_artifacts_base64_pat_token }}" | base64 --decode)
@@ -112,6 +113,7 @@ jobs:
             --store-password-in-clear-text
 
       - name: Auth Github NuGet
+        if: ${{ inputs.github_nuget_feed_source != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           dotnet nuget remove source ${{ inputs.github_nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
