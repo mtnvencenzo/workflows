@@ -114,7 +114,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         run: |
           base64_decoded=$(echo "${{ secrets.azure_artifacts_base64_pat_token }}" | base64 --decode)
-          dotnet nuget remove source ${{ inputs.azure_nuget_feed_source }} --configfile ${{ inputs.nuget_file_path }}
+          dotnet nuget remove source ${{ inputs.azure_nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
           dotnet nuget add source ${{ inputs.azure_nuget_feed_source }} \
             --name ${{ inputs.azure_nuget_feed_name }} \
             --username az \
@@ -269,7 +269,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         run: |
           base64_decoded=$(echo "${{ secrets.azure_artifacts_base64_pat_token }}" | base64 --decode)
-          dotnet nuget remove source ${{ inputs.azure_nuget_feed_source }} --configfile ${{ inputs.nuget_file_path }}
+          dotnet nuget remove source ${{ inputs.azure_nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
           dotnet nuget add source ${{ inputs.azure_nuget_feed_source }} \
             --name ${{ inputs.azure_nuget_feed_name }} \
             --username az \
