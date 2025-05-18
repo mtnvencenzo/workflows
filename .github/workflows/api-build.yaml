@@ -5,9 +5,19 @@ description: |
 on:
   workflow_call:
     inputs:
+      artifact_name:
+        description: "The name of the artifact to upload"
+        required: true
+        type: string
+        default: "dotnet-build-artifact"
+
       working_directory:
         description: ""
         required: true
+        type: string
+        
+      setup_files:
+        required: false
         type: string
 
       dotnet_version:
@@ -37,6 +47,10 @@ on:
         type: string
 
       test_project_path:
+        required: true
+        type: string
+
+      api_project_path:
         required: true
         type: string
 
@@ -102,7 +116,7 @@ jobs:
           customSettings: "" # Optional custom settings (separated by semicolon). See: https://github.com/danielpalme/ReportGenerator/wiki/Settings.
           toolpath: "reportgeneratortool" # Default directory for installing the dotnet tool.
 
-      - name: Publish Code Coverage Report
+      - name: Publish Code Coverage
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
           filename: "Cobertura.xml"
@@ -135,11 +149,48 @@ jobs:
         with:
           trx_files: "${{ github.workspace }}/**/*.trx"
 
-    # - name: Upload artifact
-    #   if: ${{ inputs.upload_artifact == true }}
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: ${{ inputs.artifact_name }}
-    #     path: ${{ inputs.working_directory }}/artifact
-    #     include-hidden-files: true
-    #     if-no-files-found: error
+      - name: Prepare artifact
+        if: ${{ inputs.setup_files != '' }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          # Create an artifact directory and new copy of the dist folder
+          mkdir -p artifact
+          mkdir -p artifact/dist
+          
+          # Remove brackets and split the string into an array
+          IFS=', ' read -r -a files <<< "$(echo "${{ inputs.setup_files }}" | tr -d '[]"')"
+
+          # Iterate through the array and copy each file
+          for file in "${files[@]}"; do
+            if [[ -f "$file" ]]; then
+              cp "$file" "artifact/"
+              echo "Copied '$file' to 'artifact/'"
+            else
+              echo "File '$file' not found."
+            fi
+          done
+
+      - name: Publish dotnet
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          dotnet publish ${{ inputs.api_project_path }}
+            --no-build
+            --no-restore
+            --output 'artifact/dist'
+            --configuration Release
+
+      - name: List artifact
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          echo "Files copied to artifact directory including distribution and setup files"
+          echo "------------------------------------------------------------------"
+          cd artifact
+          ls -R
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.working_directory }}/artifact
+          include-hidden-files: true
+          if-no-files-found: error
