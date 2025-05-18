@@ -32,12 +32,22 @@ on:
         type: string
         default: "./Nuget.config"
 
-      nuget_feed_source:
+      azure_nuget_feed_source:
         description: "The NuGet feed URL"
         required: true
         type: string
 
-      nuget_feed_name:
+      azure_nuget_feed_name:
+        description: "The name of the NuGet feed"
+        required: true
+        type: string
+
+      github_nuget_feed_source:
+        description: "The NuGet feed URL"
+        required: true
+        type: string
+
+      github_nuget_feed_name:
         description: "The name of the NuGet feed"
         required: true
         type: string
@@ -63,7 +73,11 @@ on:
     secrets:
       azure_artifacts_base64_pat_token:
         description: "The base64 encoded PAT token for Azure Artifacts"
-        required: false
+        required: true
+
+      github_packages_pat_token:
+        description: "The PAT token for github packages"
+        required: true
 
   workflow_dispatch:
 
@@ -85,15 +99,26 @@ jobs:
         with:
           dotnet-version: ${{ inputs.dotnet_version }}
 
-      - name: Auth NuGet
+      - name: Auth Azure NuGet
         working-directory: ${{ inputs.working_directory }}
         run: |
           base64_decoded=$(echo "${{ secrets.azure_artifacts_base64_pat_token }}" | base64 --decode)
-          dotnet nuget remove source ${{ inputs.nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
-          dotnet nuget add source ${{ inputs.nuget_feed_source }} \
-            --name ${{ inputs.nuget_feed_name }} \
+          dotnet nuget remove source vecchi-global --configfile ${{ inputs.nuget_file_path }}
+          dotnet nuget add source ${{ inputs.azure_nuget_feed_source }} \
+            --name ${{ inputs.azure_nuget_feed_name }} \
             --username az \
             --password $base64_decoded \
+            --configfile ${{ inputs.nuget_file_path }} \
+            --store-password-in-clear-text
+
+      - name: Auth Github NuGet
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          dotnet nuget remove source ${{ inputs.github_nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
+          dotnet nuget add source ${{ inputs.github_nuget_feed_source }} \
+            --name ${{ inputs.github_nuget_feed_name }} \
+            --username gh \
+            --password ${{ secrets.github_artifacts_base64_pat_token }} \
             --configfile ${{ inputs.nuget_file_path }} \
             --store-password-in-clear-text
 
