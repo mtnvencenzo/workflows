@@ -36,6 +36,10 @@ on:
         required: true
         type: string
 
+      test_project_path:
+        required: true
+        type: string
+
     secrets:
       azure_artifacts_base64_pat_token:
         description: "The base64 encoded PAT token for Azure Artifacts"
@@ -78,7 +82,7 @@ jobs:
 
       - name: Test
         working-directory: ${{ inputs.working_directory }}
-        run: dotnet test ./**/*.[Uu]nit.[Tt]ests/*.csproj --no-build --configuration Release --collect:"XPlat Code Coverage" -v:q -l:"console;verbosity=normal" --no-restore
+        run: dotnet test ${{ inputs.test_project_path }} --no-build --configuration Release --collect:"XPlat Code Coverage" -v:q -l:"console;verbosity=normal" --no-restore
 
     # - name: Upload artifact
     #   if: ${{ inputs.upload_artifact == true }}
