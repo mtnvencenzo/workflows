@@ -50,7 +50,7 @@ on:
         required: true
         type: string
 
-      api_project_path:
+      publish_project_path:
         required: true
         type: string
 
@@ -173,7 +173,7 @@ jobs:
       - name: Publish dotnet
         working-directory: ${{ inputs.working_directory }}
         run: |
-          dotnet publish ${{ inputs.api_project_path }}
+          dotnet publish ${{ inputs.publish_project_path }}
             --no-build
             --no-restore
             --output 'artifact/dist'
