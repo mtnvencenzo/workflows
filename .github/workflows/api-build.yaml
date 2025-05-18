@@ -64,8 +64,9 @@ jobs:
       - name: Auth NuGet
         working-directory: ${{ inputs.working_directory }}
         run: |
+          base64_decoded=$(echo "${{ secrets.azure_artifacts_base64_pat_token }}" | base64 --decode)
           dotnet nuget remove source ${{ inputs.nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
-          dotnet nuget add source ${{ inputs.nuget_feed_source }} --name ${{ inputs.nuget_feed_name }} --username az --password ${{ secrets.azure_artifacts_base64_pat_token }} --configfile ${{ inputs.nuget_file_path }} --store-password-in-clear-text
+          dotnet nuget add source ${{ inputs.nuget_feed_source }} --name ${{ inputs.nuget_feed_name }} --username az --password $base64_decoded --configfile ${{ inputs.nuget_file_path }} --store-password-in-clear-text
           echo "$(<${{ inputs.nuget_file_path }} )"
 
 
