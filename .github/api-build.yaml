@@ -1,0 +1,61 @@
+name: Dotnet Api Build
+description: |
+    This workflow builds dotnet api applications. It installs dependencies, runs tests, builds the application and uploads the build artifact.
+    This workflow is designed to be reusable and can be called from other workflows.
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: ""
+        required: true
+        type: string
+      nuget_file_path:
+        description: "Path to the NuGet.Config file"
+        required: true
+        type: string
+        default: "./Nuget.config"
+      project_path:
+        required: true
+        type: string
+
+    secrets:
+      azure_artifacts_base64_pat_token:
+        description: "The base64 encoded PAT token for Azure Artifacts"
+        required: false
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and test app
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+    - name: Setup .NET 9.x
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.x'
+
+    - name: Install dependencies
+      working-directory: ${{ inputs.working_directory }}
+      run: dotnet restore ${{ project_path }} --configfile "${{ inputs.nuget_file_path }}"
+
+
+
+
+
+    # - name: Upload artifact
+    #   if: ${{ inputs.upload_artifact == true }}
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: ${{ inputs.artifact_name }}
+    #     path: ${{ inputs.working_directory }}/artifact
+    #     include-hidden-files: true
+    #     if-no-files-found: error
