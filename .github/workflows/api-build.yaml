@@ -66,6 +66,8 @@ jobs:
         run: |
           dotnet nuget remove source ${{ inputs.nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
           dotnet nuget add source ${{ inputs.nuget_feed_source }} --name ${{ inputs.nuget_feed_name }} --username az --password ${{ secrets.azure_artifacts_base64_pat_token }} --configfile ${{ inputs.nuget_file_path }} --store-password-in-clear-text
+          echo "$(<${{ inputs.nuget_file_path }} )"
+
 
       - name: Install dependencies
         working-directory: ${{ inputs.working_directory }}
