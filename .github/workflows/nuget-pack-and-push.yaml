@@ -272,7 +272,7 @@ jobs:
 
       - name: Nuget Push
         if: ${{ inputs.allow_push }}
-        working-directory: ${{ inputs.working_directory }}/artifact/${{ inputs.publish_directory_name }}
+        working-directory: ${{ inputs.working_directory }}/${{ inputs.artifact_name }}/${{ inputs.publish_directory_name }}
         run: |
           dotnet nuget push *.nupkg \
             --source ${{ inputs.github_nuget_feed_source}}
