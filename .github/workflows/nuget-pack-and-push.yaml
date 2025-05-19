@@ -270,6 +270,18 @@ jobs:
           name: ${{ inputs.artifact_name }}
           path: ${{ inputs.working_directory }}/artifact_download
 
+      - name: Auth Github NuGet
+        if: ${{ inputs.github_nuget_feed_source != '' }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          dotnet nuget remove source ${{ inputs.github_nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
+          dotnet nuget add source ${{ inputs.github_nuget_feed_source }} \
+            --name ${{ inputs.github_nuget_feed_name }} \
+            --username gh \
+            --password ${{ secrets.github_packages_pat_token }} \
+            --configfile ${{ inputs.nuget_file_path }} \
+            --store-password-in-clear-text
+
       - name: Nuget Push
         if: ${{ inputs.allow_push }}
         working-directory: ${{ inputs.working_directory }}/artifact_download/${{ inputs.publish_directory_name }}
@@ -277,6 +289,7 @@ jobs:
           ls -R
 
           dotnet nuget push *.nupkg \
-            --source ${{ inputs.github_nuget_feed_source}}
+            --source ${{ inputs.github_nuget_feed_source}} \
             --skip-duplicate \
-            --api-key ${{ secrets.github_packages_pat_token }}
+            --configfile ${{ inputs.nuget_file_path }} \
+            --api-key 0
