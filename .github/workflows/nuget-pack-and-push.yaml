@@ -284,11 +284,11 @@ jobs:
 
       - name: Nuget Push
         if: ${{ inputs.allow_push }}
-        working-directory: ${{ inputs.working_directory }}/artifact_download/${{ inputs.publish_directory_name }}
+        working-directory: ${{ inputs.working_directory }}
         run: |
           ls -R
 
-          dotnet nuget push *.nupkg \
+          dotnet nuget push /artifact_download/${{ inputs.publish_directory_name }}/*.nupkg \
             --source ${{ inputs.github_nuget_feed_source}} \
             --skip-duplicate \
             --configfile ${{ inputs.nuget_file_path }} \
