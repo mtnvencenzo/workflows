@@ -288,7 +288,7 @@ jobs:
         run: |
           ls -R
 
-          dotnet nuget push /artifact_download/${{ inputs.publish_directory_name }}/*.nupkg \
+          dotnet nuget push ./artifact_download/${{ inputs.publish_directory_name }}/*.nupkg \
             --source ${{ inputs.github_nuget_feed_source}} \
             --skip-duplicate \
             --configfile ${{ inputs.nuget_file_path }} \
