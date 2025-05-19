@@ -286,10 +286,10 @@ jobs:
         if: ${{ inputs.allow_push }}
         working-directory: ${{ inputs.working_directory }}
         run: |
-          ls -R
+          ls -R ./artifact_download/${{ inputs.publish_directory_name }}/
 
           dotnet nuget push ./artifact_download/${{ inputs.publish_directory_name }}/*.nupkg \
             --source ${{ inputs.github_nuget_feed_source}} \
             --skip-duplicate \
             --configfile ${{ inputs.nuget_file_path }} \
-            --api-key 0
+            --api-key ${{ secrets.github_packages_pat_token }}
