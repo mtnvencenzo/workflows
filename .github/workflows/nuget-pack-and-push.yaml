@@ -274,6 +274,8 @@ jobs:
         if: ${{ inputs.allow_push }}
         working-directory: ${{ inputs.working_directory }}/${{ inputs.artifact_name }}/${{ inputs.publish_directory_name }}
         run: |
+          ls -R
+
           dotnet nuget push *.nupkg \
             --source ${{ inputs.github_nuget_feed_source}}
             --skip-duplicate \
