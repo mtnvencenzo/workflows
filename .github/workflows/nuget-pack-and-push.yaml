@@ -264,31 +264,6 @@ jobs:
         with:
           dotnet-version: ${{ inputs.dotnet_version }}
 
-      - name: Auth Azure NuGet
-        if: ${{ inputs.azure_nuget_feed_source != '' }}
-        working-directory: ${{ inputs.working_directory }}
-        run: |
-          base64_decoded=$(echo "${{ secrets.azure_artifacts_base64_pat_token }}" | base64 --decode)
-          dotnet nuget remove source ${{ inputs.azure_nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
-          dotnet nuget add source ${{ inputs.azure_nuget_feed_source }} \
-            --name ${{ inputs.azure_nuget_feed_name }} \
-            --username az \
-            --password $base64_decoded \
-            --configfile ${{ inputs.nuget_file_path }} \
-            --store-password-in-clear-text
-
-      - name: Auth Github NuGet
-        if: ${{ inputs.github_nuget_feed_source != '' }}
-        working-directory: ${{ inputs.working_directory }}
-        run: |
-          dotnet nuget remove source ${{ inputs.github_nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
-          dotnet nuget add source ${{ inputs.github_nuget_feed_source }} \
-            --name ${{ inputs.github_nuget_feed_name }} \
-            --username gh \
-            --password ${{ secrets.github_packages_pat_token }} \
-            --configfile ${{ inputs.nuget_file_path }} \
-            --store-password-in-clear-text
-
       - name: Download nuget artifact
         uses: actions/download-artifact@v4
         with:
@@ -300,6 +275,6 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         run: |
           dotnet nuget push ${{ inputs.artifact_name }}/*.nupkg \
-            --configfile ${{ inputs.nuget_file_path }} \
+            --source ${{ inputs.github_nuget_feed_source}}
             --skip-duplicate \
-            --configuration Release
+            --api-key ${{ secrets.github_packages_pat_token }}
