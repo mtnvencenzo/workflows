@@ -224,7 +224,6 @@ jobs:
             --no-restore \
             --no-build \
             --configuration Release \
-            --include-symbols \
             -p:Version=1.0.${{github.run_number}} \
             --output 'artifact/${{ inputs.publish_directory_name }}'
 
