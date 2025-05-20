@@ -1,0 +1,100 @@
+name: NPM Package Publish
+description: |
+    This workflow builds and publishes a user scoped npm package to GitHub Packages.
+    This workflow is designed to be reusable and can be called from other workflows.
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        description: "The node version to use"
+        required: false
+        default: "23.5.x"
+        type: string
+      artifact_name:
+        description: "The name of the artifact to upload"
+        required: false
+        type: string
+        default: "ui-build-artifact"
+      npm_scope:
+        description: "The npm scope to use"
+        required: true
+        type: string
+      package_name:
+        description: "The name of the package to publish"
+        required: true
+        type: string
+    secrets:
+      github_packages_pat_token:
+        description: "The pat token used to access github packages"
+        required: false
+
+  workflow_dispatch:
+
+jobs:
+  npm_publish:
+    name: Publish npm package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name}}
+          path: npm.package.publish
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '${{ inputs.node_version }}'
+          registry-url: 'https://npm.pkg.github.com/${{ inputs.npm_scope }}'
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        working-directory: 'npm.package.publish'
+        run: yarn install --frozen-lockfile
+
+      - name: Get latest version
+        id: get_version
+        working-directory: 'npm.package.publish'
+        run: |
+          echo "Fetching package versions..."
+          API_RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/user/packages/npm/${{ inputs.package_name }}/versions")
+
+          if [[ "$API_RESPONSE" == *"Package not found"* ]] || [ "$API_RESPONSE" = "[]" ] || [ -z "$API_RESPONSE" ]; then
+            echo "No published versions found, using current package.json version"
+            CURRENT_VERSION=$(jq -r '.version' package.json)
+            echo "Current version from package.json: $CURRENT_VERSION"
+            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          else
+            LATEST_VERSION=$(echo "$API_RESPONSE" | jq -r '.[0].name // "1.0.0"')
+            echo "Found latest version: $LATEST_VERSION"
+            echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Increment package version
+        working-directory: 'npm.package.publish'
+        run: |
+          CURRENT_VERSION=${{ steps.get_version.outputs.version }}
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$minor.$((patch + 1))"
+          echo "Incrementing version from $CURRENT_VERSION to $NEW_VERSION"
+          yarn version --new-version $NEW_VERSION --no-git-tag-version
+          
+      - name: Publish to GitHub Packages
+        working-directory: 'npm.package.publish'
+        run: yarn publish --non-interactive
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
