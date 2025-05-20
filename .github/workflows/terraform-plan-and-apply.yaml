@@ -124,7 +124,7 @@ jobs:
       - name: Terraform format check
         id: format
         run: |
-            terraform fmt -check -diff
+            terraform fmt -check -diff -recursive
         working-directory: ${{ inputs.working_directory }}
 
       - name: Terraform validate
