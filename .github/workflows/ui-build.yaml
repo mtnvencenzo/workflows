@@ -26,6 +26,11 @@ on:
         description: "Whether to upload the artifact or not"
         required: true
         type: boolean
+      use_npm_auth:
+        description: "Whether to authenticate to an npm feed or not"
+        required: false
+        default: true
+        type: boolean
     secrets:
       azure_artifacts_base64_pat_token:
         description: "The base64 encoded PAT token for Azure Artifacts"
@@ -55,6 +60,7 @@ jobs:
         run: npm install -g yarn
 
       - name: Authenticate npm feed
+        if: ${{ inputs.use_npm_auth != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           echo "@vecchi:registry=https://pkgs.dev.azure.com/vecchi/_packaging/global/npm/registry/" > .npmrc
