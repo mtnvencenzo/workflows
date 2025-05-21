@@ -273,6 +273,19 @@ jobs:
           name: ${{ inputs.artifact_name }}
           path: ${{ inputs.working_directory }}/artifact_download
 
+      - name: Auth Azure NuGet
+        if: ${{ inputs.azure_nuget_feed_source != '' }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          base64_decoded=$(echo "${{ secrets.azure_artifacts_base64_pat_token }}" | base64 --decode)
+          dotnet nuget remove source ${{ inputs.azure_nuget_feed_name }} --configfile ${{ inputs.nuget_file_path }}
+          dotnet nuget add source ${{ inputs.azure_nuget_feed_source }} \
+            --name ${{ inputs.azure_nuget_feed_name }} \
+            --username az \
+            --password $base64_decoded \
+            --configfile ${{ inputs.nuget_file_path }} \
+            --store-password-in-clear-text
+
       - name: Auth Github NuGet
         if: ${{ inputs.github_nuget_feed_source != '' }}
         working-directory: ${{ inputs.working_directory }}
@@ -285,7 +298,19 @@ jobs:
             --configfile ${{ inputs.nuget_file_path }} \
             --store-password-in-clear-text
 
-      - name: Nuget Push
+      - name: Nuget Push to Azure
+        if: ${{ inputs.allow_push }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          ls -R ./artifact_download/${{ inputs.publish_directory_name }}/
+          base64_decoded=$(echo "${{ secrets.azure_artifacts_base64_pat_token }}" | base64 --decode)
+          dotnet nuget push ./artifact_download/${{ inputs.publish_directory_name }}/*.nupkg \
+            --source ${{ inputs.azure_nuget_feed_source}} \
+            --skip-duplicate \
+            --configfile ${{ inputs.nuget_file_path }} \
+            --api-key $base64_decoded
+
+      - name: Nuget Push to Github
         if: ${{ inputs.allow_push }}
         working-directory: ${{ inputs.working_directory }}
         run: |
