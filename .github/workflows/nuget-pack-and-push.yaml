@@ -39,22 +39,26 @@ on:
 
       azure_nuget_feed_source:
         description: "The NuGet feed URL"
-        required: true
+        required: false
+        default: ""
         type: string
 
       azure_nuget_feed_name:
         description: "The name of the NuGet feed"
-        required: true
+        required: false
+        default: ""
         type: string
 
       github_nuget_feed_source:
         description: "The NuGet feed URL"
-        required: true
+        required: false
+        default: ""
         type: string
 
       github_nuget_feed_name:
         description: "The name of the NuGet feed"
-        required: true
+        required: false
+        default: ""
         type: string
 
       project_path:
