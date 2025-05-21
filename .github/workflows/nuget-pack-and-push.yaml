@@ -299,7 +299,7 @@ jobs:
             --store-password-in-clear-text
 
       - name: Nuget Push to Azure
-        if: ${{ inputs.allow_push }}
+        if: ${{ (inputs.allow_push) && (inputs.azure_nuget_feed_source != '') }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           ls -R ./artifact_download/${{ inputs.publish_directory_name }}/
@@ -311,7 +311,7 @@ jobs:
             --api-key $base64_decoded
 
       - name: Nuget Push to Github
-        if: ${{ inputs.allow_push }}
+        if: ${{ (inputs.allow_push) && (inputs.github_nuget_feed_source != '') }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           ls -R ./artifact_download/${{ inputs.publish_directory_name }}/
