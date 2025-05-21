@@ -87,11 +87,11 @@ on:
     secrets:
       azure_artifacts_base64_pat_token:
         description: "The base64 encoded PAT token for Azure Artifacts"
-        required: true
+        required: false
 
       github_packages_pat_token:
         description: "The PAT token for github packages"
-        required: true
+        required: false
 
   workflow_dispatch:
 
