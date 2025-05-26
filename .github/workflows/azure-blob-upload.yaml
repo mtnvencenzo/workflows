@@ -85,7 +85,7 @@ jobs:
               --destination '${{ inputs.container_name }}' \
               --source ${{ inputs.source_directory }} \
               --overwrite \
-              --pattern '${{ inputs.pattern}}'
+              --pattern '${{ inputs.pattern }}'
 
       - name: logout
         if: always()
