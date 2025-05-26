@@ -168,3 +168,8 @@ jobs:
               --content-paths '/*' \
               --no-wait true
 
+      - name: logout
+        if: always()
+        run: |
+          az logout
+

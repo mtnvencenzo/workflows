@@ -188,7 +188,7 @@ jobs:
         uses: andymckay/cancel-action@0.4
 
   terraform_deploy:
-    name: Terraform deploy [prd]
+    name: Terraform deploy
     if: ${{ inputs.allow_deploy }}
     runs-on: "ubuntu-latest"
     environment: ${{ inputs.environment_name }}

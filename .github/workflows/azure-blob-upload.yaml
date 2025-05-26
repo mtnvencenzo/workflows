@@ -1,0 +1,93 @@
+name: Azure blob upload
+description: |
+    Upload files to an Azure blob storage account. This is useful for uploading artifacts or static files that are needed for deployments or other purposes.
+    The workflow can be triggered manually or by another workflow using the `workflow_call` event.
+    It requires Azure credentials and the name of the storage account and container to upload files to.
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: "Path to the root terraform directory containing the terraform files to deploy"
+        required: true
+        type: string
+      environment_name:
+        description: "The environment this is running in. This is used to determine the concurrency group for the job runs"
+        required: true
+        type: string
+      allow_deploy:
+        description: "Allow the deploy to run. This is used to determine if the deploy job should run or not"
+        required: true
+        type: boolean
+      arm_client_id:
+        description: "Azure arm client id"
+        required: true
+        type: string
+      arm_subscription_id:
+        description: "Azure arm subscription id"
+        required: true
+        type: string
+      arm_tenant_id:
+        description: "Azure arm tenant id"
+        required: true
+        type: string
+      storage_account_name:
+        description: "Azure storage account name where the terraform state is stored"
+        required: true
+        type: string
+      container_name:
+        description: "Azure storage account container name where the terraform state is stored"
+        required: true
+        type: string
+      source_directory:
+        description: "The source directory to upload to the storage account"
+        required: false
+        type: string
+        default: "."
+      pattern:
+        description: "The pattern to match files to upload"
+        required: false
+        type: string
+        default: "*"
+    secrets:
+      arm_client_secret:
+        description: "Azure arm client secret"
+        required: true
+      
+  workflow_dispatch:
+
+jobs:
+  upload_blob:
+    name: Blob upload
+    if: ${{ inputs.allow_deploy }}
+    runs-on: "ubuntu-latest"
+    environment: ${{ inputs.environment_name }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ inputs.arm_client_id }}","clientSecret":"${{ secrets.arm_client_secret }}","subscriptionId":"${{ inputs.arm_subscription_id }}","tenantId":"${{ inputs.arm_tenant_id }}"}'
+
+      - name: Push to storage account
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+            ls ${{ inputs.source_directory }}
+
+            az storage blob upload-batch \
+              --account-name '${{ inputs.storage_account_name }}' \
+              --destination '${{ inputs.container_name }}' \
+              --source ${{ inputs.source_directory }} \
+              --overwrite \
+              --pattern '${{ inputs.pattern}}'
+
+      - name: logout
+        if: always()
+        run: |
+          az logout
