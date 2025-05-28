@@ -156,6 +156,7 @@ jobs:
 
       - name: Terraform upsert comment on pr
         if: ${{ github.event_name == 'pull_request' }}
+        continue-on-error: true
         uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
