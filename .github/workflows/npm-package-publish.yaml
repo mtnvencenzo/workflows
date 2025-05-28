@@ -70,7 +70,7 @@ jobs:
         working-directory: 'npm.package.publish'
         run: |
           echo "Fetching package versions..."
-          API_RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          API_RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.github_packages_pat_token }}" \
             "https://api.github.com/user/packages/npm/${{ inputs.package_name }}/versions")
 
           if [[ "$API_RESPONSE" == *"Package not found"* ]] || [ "$API_RESPONSE" = "[]" ] || [ -z "$API_RESPONSE" ]; then
@@ -97,4 +97,4 @@ jobs:
         working-directory: 'npm.package.publish'
         run: yarn publish --non-interactive
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.github_packages_pat_token }}
