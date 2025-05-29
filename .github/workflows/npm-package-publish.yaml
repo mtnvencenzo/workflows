@@ -98,7 +98,15 @@ jobs:
           
       - name: Publish to GitHub Packages
         working-directory: 'npm.package.publish'
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.github_packages_pat_token }}" > ~/.npmrc
+        run: |
+          echo "@${{ inputs.npm_scope}}:registry=https://npm.pkg.github.com" > ~/.npmrc
+          echo "//npm.pkg.github.com/@${{ inputs.npm_scope }}:_authToken=${{ secrets.github_packages_pat_token }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.github_packages_pat_token }}
+
+      - name: Publish to GitHub Packages
+        working-directory: 'npm.package.publish'
         run: yarn publish --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{ secrets.github_packages_pat_token }}
