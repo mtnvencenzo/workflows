@@ -100,7 +100,8 @@ jobs:
         working-directory: 'npm.package.publish'
         run: |
           echo "@${{ inputs.npm_scope}}:registry=https://npm.pkg.github.com" > ~/.npmrc
-          echo "//npm.pkg.github.com/@${{ inputs.npm_scope }}:_authToken=${{ secrets.github_packages_pat_token }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.github_packages_pat_token }}" >> ~/.npmrc
+          echo "" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
       - name: Publish to GitHub Packages
