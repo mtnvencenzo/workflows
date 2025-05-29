@@ -107,6 +107,6 @@ jobs:
 
       - name: Publish to GitHub Packages
         working-directory: 'npm.package.publish'
-        run: yarn publish --non-interactive
+        run: npm publish --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{ secrets.github_packages_pat_token }}
