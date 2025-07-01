@@ -74,6 +74,12 @@ on:
         type: string
         default: "dist"
 
+      version:
+        description: "The version of the application"
+        required: false
+        type: string
+        default: "1.0.0"
+
     secrets:
       azure_artifacts_base64_pat_token:
         description: "The base64 encoded PAT token for Azure Artifacts"
@@ -134,7 +140,7 @@ jobs:
 
       - name: Build
         working-directory: ${{ inputs.working_directory }}
-        run: dotnet build ${{ inputs.project_path }} --no-restore --configuration Release
+        run: dotnet build ${{ inputs.project_path }} --no-restore --configuration Release -p:Version=${{ inputs.version }}
 
       - name: Test
         working-directory: ${{ inputs.working_directory }}
