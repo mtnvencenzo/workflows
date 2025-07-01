@@ -21,10 +21,10 @@ on:
         description: "The optional authentication header name to use for supplying the auth value"
         default: ""
         type: string
+    secrets:
       authValue:
         description: "The optional authentication header value to use when supplying authentication"
-        default: ""
-        type: string
+        required: false
       
   workflow_dispatch:
 
@@ -50,7 +50,7 @@ jobs:
             while [ $retry_count -lt $max_retries ]; do
 
                 if [ '${{ inputs.authHeader }}' != '' ]; then
-                rs=$(curl -H "${{ inputs.authHeader }}: ${{ inputs.authValue }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                rs=$(curl -H "${{ inputs.authHeader }}: ${{ secrets.authValue }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
                 else
                 rs=$(curl --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
                 fi
