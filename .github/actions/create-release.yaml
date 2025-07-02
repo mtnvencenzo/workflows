@@ -4,9 +4,13 @@ inputs:
   version:
     description: 'The release version'
     required: true
+  allow_release:
+    description: 'Whether to allow the release to be created'
+    required: true
 
 runs:
   using: 'composite'
+  if: ${{ inputs.allow_release }}
   steps:
     - name: Checkout code
       uses: actions/checkout@v4
