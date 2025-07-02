@@ -36,10 +36,10 @@ runs:
         echo "Expected tag: ${{ inputs.expected_tag }}"
         echo "Expected api version: $expected_version"
 
-        header_name =  ${{ inputs.auth_header }}
-        header_name = "${header_name:-X-No-Auth}"
-        header_value = ${{ env.AUTH_VALUE }}
-        header_value = "${header_value:-nil}"
+        header_name="${{ inputs.auth_header }}"
+        header_name="${header_name:-X-No-Auth}"
+        header_value="${{ env.AUTH_VALUE }}"
+        header_value="${header_value:-nil}"
 
         current_version=$(curl -H "$header_name: $header_value" -s ${{ inputs.url }} | jq -r '.${{ inputs.property_name }}')
 
