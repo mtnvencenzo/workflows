@@ -25,11 +25,6 @@ env:
 
 runs:
   using: 'composite'
-
-  defaults:
-    run:
-      shell: bash
-
   steps:
     - name: Verify deployed version
       run: |
@@ -62,4 +57,5 @@ runs:
 
           current_version=$(curl -H "$header_name: $header_value" -s ${{ inputs.url }} | jq -r '.${{ inputs.property_name }}')
         done
+      shell: bash
 
