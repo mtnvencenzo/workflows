@@ -20,10 +20,8 @@ inputs:
     description: 'The timeout in seconds to wait for the version to be deployed'
     required: false
     default: 300
-secrets:
-  authValue:
-    description: 'The authentication value to use when checking the version'
-    required: false
+env:
+  AUTH_VALUE: ''
 
 runs:
   using: 'composite'
@@ -45,7 +43,7 @@ runs:
 
         header_name =  ${{ inputs.auth_header }}
         header_name = "${header_name:-X-No-Auth}"
-        header_value = ${{ secrets.authValue }}
+        header_value = ${{ env.AUTH_VALUE }}
         header_value = "${header_value:-nil}"
 
         current_version=$(curl -H "$header_name: $header_value" -s ${{ inputs.url }} | jq -r '.${{ inputs.property_name }}')
