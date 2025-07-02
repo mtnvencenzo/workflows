@@ -1,0 +1,67 @@
+name: Check Release Version
+description: Check the current version is the expected version
+inputs:
+  expected_release_version:
+    description: 'The expected release version'
+    required: true
+  expected_tag:
+    description: 'The expected release tag'
+    required: true
+  url:
+    description: 'The url to check the version from'
+    required: true
+  property_name:
+    description: 'The property name to check the version from'
+    required: true
+  auth_header:
+    description: 'The authentication header to use when checking the version'
+    required: false
+  timeout_seconds:
+    description: 'The timeout in seconds to wait for the version to be deployed'
+    required: false
+    default: 300
+secrets:
+  authValue:
+    description: 'The authentication value to use when checking the version'
+    required: false
+
+runs:
+  using: 'composite'
+
+  defaults:
+    run:
+      shell: bash
+
+  steps:
+    - name: Verify deployed version
+      run: |
+        started_at=$(date +%s)
+        expected_version="${{ inputs.expected_release_version }}+${{ inputs.expected_tag }}"
+
+        echo "Starting version check: ${{ $started_at }}"
+        echo "Expected release version: ${{ inputs.expected_release_version }}"
+        echo "Expected tag: ${{ inputs.expected_tag }}"
+        echo "Expected api version: $expected_version"
+
+        header_name =  ${{ inputs.auth_header }}
+        header_name = "${header_name:-X-No-Auth}"
+        header_value = ${{ secrets.authValue }}
+        header_value = "${header_value:-nil}"
+
+        current_version=$(curl -H "$header_name: $header_value" -s ${{ inputs.url }} | jq -r '.${{ inputs.property_name }}')
+
+        while true; do
+          now=$(date +%s)
+          elapsed=$((now - started_at))
+
+          if [ "$current_version" == "$expected_version" ]; then
+            echo "New version has been deployed after $elapsed seconds"
+            exit 0
+          elif [ "$elapsed" -ge ${{ inputs.timeout_seconds }} ]; then
+            echo "Version did not deploy successfully within the timeout period of ${{ inputs.timeout_seconds }} seconds"
+            exit 1
+          fi
+
+          current_version=$(curl -H "$header_name: $header_value" -s ${{ inputs.url }} | jq -r '.${{ inputs.property_name }}')
+        done
+
