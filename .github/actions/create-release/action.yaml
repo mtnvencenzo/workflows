@@ -15,4 +15,4 @@ runs:
       with:
         tag: ${{ inputs.version }}
         name: ${{ inputs.version }}
-        generate_release_notes: true
+        skipIfReleaseExists: true
