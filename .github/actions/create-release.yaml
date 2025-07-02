@@ -10,11 +10,11 @@ inputs:
 
 runs:
   using: 'composite'
-  if: ${{ inputs.allow_release }}
   steps:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Create release
+      if: ${{ inputs.allow_release }}
       uses: ncipollo/release-action@v1
       with:
         tag: ${{ inputs.version }}

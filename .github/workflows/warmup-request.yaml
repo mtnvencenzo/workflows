@@ -38,6 +38,7 @@ jobs:
 
     steps:
       - name: Warmup request
+        if: ${{ inputs.allow_warmup }}
         run: |
             echo '===================== warming up ========================'
             echo "GET ${{ inputs.url }}"
