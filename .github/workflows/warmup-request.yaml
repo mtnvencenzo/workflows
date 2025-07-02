@@ -31,6 +31,7 @@ on:
 jobs:
   warmup_request:
     runs-on: ubuntu-latest
+    if: ${{ inputs.allow_warmup }}
 
     defaults:
       run:
@@ -38,7 +39,7 @@ jobs:
 
     steps:
       - name: Warmup request
-        if: ${{ inputs.allow_warmup }}
+        
         run: |
             echo '===================== warming up ========================'
             echo "GET ${{ inputs.url }}"
