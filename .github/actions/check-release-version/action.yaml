@@ -31,7 +31,7 @@ runs:
         started_at=$(date +%s)
         expected_version="${{ inputs.expected_release_version }}+${{ inputs.expected_tag }}"
 
-        echo "Starting version check: ${{ $started_at }}"
+        echo "Starting version check: $started_at"
         echo "Expected release version: ${{ inputs.expected_release_version }}"
         echo "Expected tag: ${{ inputs.expected_tag }}"
         echo "Expected api version: $expected_version"
