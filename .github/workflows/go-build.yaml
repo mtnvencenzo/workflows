@@ -67,9 +67,6 @@ jobs:
       - name: Install linter
         run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
-      - name: Install Formatter
-        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-
       - name: Go version
         run: go version
 
