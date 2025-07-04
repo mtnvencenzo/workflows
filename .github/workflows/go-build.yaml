@@ -59,13 +59,12 @@ jobs:
         run: rm -r dist
 
       - name: Build app
-        run: CGO_ENABLED=0 GOOS=linux go build -o /dist ./cmd
-        working-directory: ${{ inputs.go_mod_directory }}
+        run: CGO_ENABLED=0 GOOS=linux go build -o dist ${{ inputs.go_mod_directory }}/cmd
         
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact_name }}
-          path: /dist
+          path: dist
           include-hidden-files: true
           if-no-files-found: error
