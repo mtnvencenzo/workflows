@@ -54,6 +54,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
             go-version: ${{ inputs.go_version }}
+            cache-dependency-path: ${{ inputs.go_mod_directory }}/go.sum
 
       - name: Go version
         run: go version
