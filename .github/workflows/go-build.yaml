@@ -64,12 +64,18 @@ jobs:
             go-version: ${{ inputs.go_version }}
             cache-dependency-path: ${{ inputs.go_mod_directory }}/go.sum
 
+      - name: Install linter
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
       - name: Go version
         run: go version
 
       - name: Install dependencies
         run: go mod download
         working-directory: ${{ inputs.go_mod_directory }}
+
+      - name: Lint
+        run: cd cd ${{ inputs.go_mod_directory }} && golangci-lint run --fix
 
       - name: Create build distribution directory
         run: mkdir -p dist
