@@ -91,7 +91,7 @@ jobs:
           done
 
       - name: Build app
-        run: dist_dir=$(realpath ./dist) && echo "$dist_dir" && cd ${{ inputs.go_mod_directory }} && CGO_ENABLED=0 GOOS=linux go build -o "$dist_dir/output/{{ inputs.go_executable_name }}" ./${{ inputs.go_main_directory }}
+        run: dist_dir=$(realpath ./dist) && echo "$dist_dir" && cd ${{ inputs.go_mod_directory }} && CGO_ENABLED=0 GOOS=linux go build -o "$dist_dir/output/${{ inputs.go_executable_name }}" ./${{ inputs.go_main_directory }}
 
       - name: List distribution directory
         run: ls -la dist
