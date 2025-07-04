@@ -1,0 +1,68 @@
+name: Golang Api Build
+
+description: |
+    This workflow builds dotnet api applications. It installs dependencies, runs tests, builds the application and uploads the build artifact.
+    This workflow is designed to be reusable and can be called from other workflows.
+on:
+  workflow_call:
+    inputs:
+        go_version:
+            description: "The version of Go to use"
+            required: true
+            type: string
+            default: "1.24.2"
+
+        go_mod_directory:
+            description: "The sub directory of the source code to build"
+            required: true
+            type: string
+
+        go_dist_directory:
+            description: "The sub directory of the build output"
+            required: true
+            type: string
+
+        artifact_name:
+            description: "The name of the artifact to upload"
+            required: true
+            type: string
+            default: "dotnet-build-artifact"
+
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    name: Build and test app
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+            go-version: ${{ inputs.go_version }}
+
+      - name: Go version
+        run: go version
+
+      - name: Install dependencies
+        run: go mod download
+        working-directory: ${{ inputs.go_mod_directory }}
+
+      - name: Make Build
+        run: make compile-linux-ci
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.go_dist_directory }}
+          include-hidden-files: true
+          if-no-files-found: error
