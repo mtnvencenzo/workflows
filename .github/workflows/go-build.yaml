@@ -22,6 +22,10 @@ on:
             required: true
             type: string
 
+        setup_files:
+            required: false
+            type: string
+
         artifact_name:
             description: "The name of the artifact to upload"
             required: true
@@ -60,11 +64,32 @@ jobs:
       - name: Create build output directory
         run: mkdir -p dist
 
-      - name: Clean build output directory
+      - name: Clean distribution directory
         run: rm -r dist
 
+      - name: Create output directory
+        run: mkdir -p dist/output
+
+      - name: Prepare output files
+        run: |
+          # Remove brackets and split the string into an array
+          IFS=', ' read -r -a files <<< "$(echo "${{ inputs.setup_files }}" | tr -d '[]"')"
+
+          # Iterate through the array and copy each file
+          for file in "${files[@]}"; do
+            if [[ -f "$file" ]]; then
+              cp "$file" "dist/"
+              echo "Copied '$file' to 'dist/'"
+            else
+              echo "File '$file' not found."
+            fi
+          done
+
       - name: Build app
-        run: dist_dir=$(realpath ./dist) && echo "$dist_dir" && cd ${{ inputs.go_mod_directory }} && CGO_ENABLED=0 GOOS=linux go build -o "$dist_dir" ./${{ inputs.go_main_directory }}
+        run: dist_dir=$(realpath ./dist) && echo "$dist_dir" && cd ${{ inputs.go_mod_directory }} && CGO_ENABLED=0 GOOS=linux go build -o "$dist_dir/output" ./${{ inputs.go_main_directory }}
+
+      - name: List distribution directory
+        run: ls -la dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
