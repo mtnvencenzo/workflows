@@ -22,6 +22,11 @@ on:
             required: true
             type: string
 
+        go_output_directory:
+            description: "The sub directory of the source code where the output is located"
+            required: true
+            type: string
+
         go_executable_name:
             description: "The name of the executable to build"
             required: true
@@ -66,14 +71,14 @@ jobs:
         run: go mod download
         working-directory: ${{ inputs.go_mod_directory }}
 
-      - name: Create build output directory
+      - name: Create build distribution directory
         run: mkdir -p dist
 
       - name: Clean distribution directory
         run: rm -r dist
 
       - name: Create output directory
-        run: mkdir -p dist/output
+        run: mkdir -p dist/${{ inputs.go_output_directory }}
 
       - name: Prepare output files
         run: |
@@ -91,10 +96,14 @@ jobs:
           done
 
       - name: Build app
-        run: dist_dir=$(realpath ./dist) && echo "$dist_dir" && cd ${{ inputs.go_mod_directory }} && CGO_ENABLED=0 GOOS=linux go build -o "$dist_dir/output/${{ inputs.go_executable_name }}" ./${{ inputs.go_main_directory }}
+        run: dist_dir=$(realpath ./dist) && echo "$dist_dir" && cd ${{ inputs.go_mod_directory }} && CGO_ENABLED=0 GOOS=linux go build -o "$dist_dir/${{ inputs.go_output_directory }}/${{ inputs.go_executable_name }}" ./${{ inputs.go_main_directory }}
 
       - name: List distribution directory
-        run: ls -la dist
+        run: |
+            echo "Files copied to artifact directory including distribution and setup files"
+            echo "------------------------------------------------------------------"
+            cd dist
+            ls -R
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
