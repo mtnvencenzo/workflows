@@ -17,17 +17,6 @@ on:
             required: true
             type: string
 
-        make_build_command:
-            description: "The command to run to build the application"
-            required: true
-            type: string
-            default: "compile-linux-ci"
-
-        go_dist_directory:
-            description: "The sub directory of the build output"
-            required: true
-            type: string
-
         artifact_name:
             description: "The name of the artifact to upload"
             required: true
@@ -63,13 +52,20 @@ jobs:
         run: go mod download
         working-directory: ${{ inputs.go_mod_directory }}
 
-      - name: Make Build
-        run: make ${{ inputs.make_build_command }}
+      - name: Create build output directory
+        run: mkdir -p dist
 
+      - name: Clean build output directory
+        run: rm -r dist
+
+      - name: Build app
+        run: CGO_ENABLED=0 GOOS=linux go build -o /dist ./cmd
+        working-directory: ${{ inputs.go_mod_directory }}
+        
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact_name }}
-          path: ${{ inputs.go_dist_directory }}
+          path: /dist
           include-hidden-files: true
           if-no-files-found: error
