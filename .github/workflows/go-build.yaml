@@ -75,7 +75,7 @@ jobs:
         working-directory: ${{ inputs.go_mod_directory }}
 
       - name: Lint
-        run: cd cd ${{ inputs.go_mod_directory }} && golangci-lint run --fix
+        run: cd ${{ inputs.go_mod_directory }} && golangci-lint run
 
       - name: Create build distribution directory
         run: mkdir -p dist
