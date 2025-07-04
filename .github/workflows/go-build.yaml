@@ -67,12 +67,18 @@ jobs:
       - name: Install linter
         run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
+      - name: Install Formatter
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
       - name: Go version
         run: go version
 
       - name: Install dependencies
         run: go mod download
         working-directory: ${{ inputs.go_mod_directory }}
+
+      - name: Format Check
+        run: cd ${{ inputs.go_mod_directory }} && gofmt -s -l .
 
       - name: Lint
         run: cd ${{ inputs.go_mod_directory }} && golangci-lint run
