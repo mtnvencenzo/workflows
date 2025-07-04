@@ -17,6 +17,12 @@ on:
             required: true
             type: string
 
+        make_build_command:
+            description: "The command to run to build the application"
+            required: true
+            type: string
+            default: "compile-linux-ci"
+
         go_dist_directory:
             description: "The sub directory of the build output"
             required: true
@@ -57,7 +63,7 @@ jobs:
         working-directory: ${{ inputs.go_mod_directory }}
 
       - name: Make Build
-        run: make compile-linux-ci
+        run: make ${{ inputs.make_build_command }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
