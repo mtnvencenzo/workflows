@@ -44,6 +44,7 @@ runs:
         current_version=$(curl -H "$header_name: $header_value" -s ${{ inputs.url }} | jq -r '.${{ inputs.property_name }}')
 
         while true; do
+          echo "Current version: $current_version"
           now=$(date +%s)
           elapsed=$((now - started_at))
 
