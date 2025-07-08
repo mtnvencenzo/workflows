@@ -55,6 +55,7 @@ runs:
             exit 1
           fi
 
+          sleep 5
           current_version=$(curl -H "$header_name: $header_value" -s ${{ inputs.url }} | jq -r '.${{ inputs.property_name }}')
         done
       shell: bash
