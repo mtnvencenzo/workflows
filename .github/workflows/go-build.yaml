@@ -42,6 +42,12 @@ on:
             type: string
             default: "dotnet-build-artifact"
 
+        version:
+          description: "The version of the application"
+          required: false
+          type: string
+          default: "1.0.0"
+
   workflow_dispatch:
 
 
@@ -114,7 +120,7 @@ jobs:
           done
 
       - name: Build app
-        run: dist_dir=$(realpath ./dist) && cd ${{ inputs.go_mod_directory }} && CGO_ENABLED=0 GOOS=linux go build -o "$dist_dir/${{ inputs.go_output_directory }}/${{ inputs.go_executable_name }}" ./${{ inputs.go_main_directory }}
+        run: dist_dir=$(realpath ./dist) && cd ${{ inputs.go_mod_directory }} && CGO_ENABLED=0 GOOS=linux go build -ldflags="-X 'main.Version=${{ inputs.version }}'" -o "$dist_dir/${{ inputs.go_output_directory }}/${{ inputs.go_executable_name }}" ./${{ inputs.go_main_directory }}
 
       - name: List distribution directory
         run: |
