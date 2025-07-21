@@ -1,0 +1,77 @@
+name: Api call
+description: |
+  This workflow is used to call an api and check the response status code.  If the status code is not as expected, the workflow will fail.
+on:
+  workflow_call:
+    inputs:
+      url:
+        description: "The url to call to perform the warmup request against"
+        required: true
+        type: string
+      statusCode:
+        description: "The expected status code of the response"
+        default: "200"
+        type: string
+      enabled:
+        description: "Allow the api to run. This is used to determine if the job should run or not"
+        type: boolean
+        required: true
+      authHeader:
+        description: "The optional authentication header name to use for supplying the auth value"
+        default: ""
+        type: string
+      method:
+        description: "The method to use for the api call"
+        default: "GET"
+        type: string
+    secrets:
+      authValue:
+        description: "The optional authentication header value to use when supplying authentication"
+        required: false
+      
+  workflow_dispatch:
+
+jobs:
+  warmup_request:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.enabled }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Warmup request
+        
+        run: |
+            echo '===================== warming up ========================'
+            echo "${{ inputs.method }} ${{ inputs.url }}"
+            echo '========================================================='
+
+            max_retries=5
+            retry_count=0
+            expected_status_code=${{ inputs.statusCode }}
+
+            while [ $retry_count -lt $max_retries ]; do
+
+                if [ '${{ inputs.authHeader }}' != '' ]; then
+                  rs=$(curl -X ${{ inputs.method }} -H "${{ inputs.authHeader }}: ${{ secrets.authValue }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                else
+                  rs=$(curl -X ${{ inputs.method }} --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                fi
+
+                if [ $rs -eq $expected_status_code ]; then
+                  echo "Api call was successful with status code $rs"
+                  exit 0
+                else
+                  echo "Api call failed with status code $rs. Retrying..."
+                retry_count=$((retry_count + 1))
+                  sleep 2 # Wait for 2 seconds before retrying
+                fi
+            done
+
+            if [ $retry_count -eq $max_retries ]; then
+                echo "Request failed after $max_retries retries. Exiting."
+            fi
+
+            exit -1
