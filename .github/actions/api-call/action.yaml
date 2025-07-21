@@ -40,7 +40,7 @@ runs:
           while [ $retry_count -lt $max_retries ]; do
 
               if [ '${{ inputs.authHeader }}' != '' ]; then
-                rs=$(curl -X ${{ inputs.method }} -H "${{ inputs.authHeader }}: ${{ env.authValue }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                rs=$(curl -X ${{ inputs.method }} -H "${{ inputs.authHeader }}: ${{ env.AUTH_VALUE }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
               else
                 rs=$(curl -X ${{ inputs.method }} --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
               fi
