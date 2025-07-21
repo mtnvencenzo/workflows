@@ -1,0 +1,64 @@
+name: Api call
+description: Makes an api call and checks the response status code
+inputs:
+  url:
+    description: "The url to call"
+    required: true
+    type: string
+  statusCode:
+    description: "The expected status code of the response"
+    default: "200"
+    type: string
+  enabled:
+    description: "Allow the api to run. This is used to determine if the job should run or not"
+    type: boolean
+    required: true
+  authHeader:
+    description: "The optional authentication header name to use for supplying the auth value"
+    default: ""
+    type: string
+  method:
+    description: "The method to use for the api call"
+    default: "GET"
+    type: string
+env:
+  AUTH_VALUE: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Calling api
+      run: |
+          echo '===================== Calling api ========================'
+          echo "${{ inputs.method }} ${{ inputs.url }}"
+          echo '========================================================='
+
+          max_retries=5
+          retry_count=0
+          expected_status_code=${{ inputs.statusCode }}
+
+          while [ $retry_count -lt $max_retries ]; do
+
+              if [ '${{ inputs.authHeader }}' != '' ]; then
+                rs=$(curl -X ${{ inputs.method }} -H "${{ inputs.authHeader }}: ${{ env.authValue }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+              else
+                rs=$(curl -X ${{ inputs.method }} --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+              fi
+
+              if [ $rs -eq $expected_status_code ]; then
+                echo "Api call was successful with status code $rs"
+                exit 0
+              else
+                echo "Api call failed with status code $rs. Retrying..."
+              retry_count=$((retry_count + 1))
+                sleep 2 # Wait for 2 seconds before retrying
+              fi
+          done
+
+          if [ $retry_count -eq $max_retries ]; then
+              echo "Request failed after $max_retries retries. Exiting."
+          fi
+
+          exit -1
+      shell: bash
+
