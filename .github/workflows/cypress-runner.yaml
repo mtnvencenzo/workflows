@@ -27,8 +27,8 @@ on:
         type: string
         default: ""
     secrets:
-      cypress_user_password:
-        description: "Cypress user password"
+      secret_command_line_args:
+        description: "Extra commandline args containing secrets"
         required: false
 
   workflow_dispatch:
@@ -64,7 +64,7 @@ jobs:
         if: ${{ inputs.allow_run }}
         working-directory: ${{ inputs.working_directory }}
         run: |
-          yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}${{ secrets.cypress_user_password }}
+          yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}${{ secrets.secret_command_line_args }}
 
       - name: Upload test results
         if: ${{ inputs.allow_run }}
