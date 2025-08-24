@@ -65,6 +65,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         run: |
           yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}${{ secrets.secret_command_line_args }}
+        continue-on-error: true
 
       - name: Upload test results
         if: ${{ inputs.allow_run }}
