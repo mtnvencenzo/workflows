@@ -61,6 +61,7 @@ jobs:
           yarn lint
 
       - name: Cypress run
+        id: cypress_run
         if: ${{ inputs.allow_run }}
         working-directory: ${{ inputs.working_directory }}
         run: |
@@ -90,3 +91,7 @@ jobs:
             name: ${{ inputs.environment_name }}.cypress-videos
             path: ${{ inputs.working_directory }}/cypress/videos/
             include-hidden-files: true
+
+      - name: Check cypress run outcome
+        if: steps.cypress_run.outcome == 'failure'
+        run: exit 1
