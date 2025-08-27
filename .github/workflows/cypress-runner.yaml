@@ -27,8 +27,11 @@ on:
         type: string
         default: ""
     secrets:
-      secret_command_line_args:
-        description: "Extra commandline args containing secrets"
+      cypressUserPassword:
+        description: "The cypress use password"
+        required: false
+      cypressApiKey:
+        description: "The apu key that the cypress run can use to call an external api"
         required: false
 
   workflow_dispatch:
