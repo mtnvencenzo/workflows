@@ -64,8 +64,11 @@ jobs:
         id: cypress_run
         if: ${{ inputs.allow_run }}
         working-directory: ${{ inputs.working_directory }}
+        env:
+          cypressUserPassword: ${{ secrets.PRD_CYPRESS_USER_PASSWORD }}
+          cypressApiKey: ${{ secrets.PRD_CYPRESS_API_KEY }}
         run: |
-          yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}${{ secrets.secret_command_line_args }}
+          yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}
         continue-on-error: true
 
       - name: Upload test results
