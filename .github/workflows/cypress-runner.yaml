@@ -68,9 +68,8 @@ jobs:
         if: ${{ inputs.allow_run }}
         working-directory: ${{ inputs.working_directory }}
         env:
-          cypressUserPassword: '${{ secrets.PRD_CYPRESS_USER_PASSWORD }}'
-          cypressApiKey: '${{ secrets.PRD_CYPRESS_API_KEY }}'
-          CYPRESS_TEST_VAR: 'test-a-roo'
+          CYPRESS_cypressUserPassword: '${{ secrets.PRD_CYPRESS_USER_PASSWORD }}'
+          CYPRESS_cypressApiKey: '${{ secrets.PRD_CYPRESS_API_KEY }}'
         run: |
           yarn cypress run --config baseUrl=${{ inputs.base_url }}  ${{ inputs.command_line_args }}
         continue-on-error: true
