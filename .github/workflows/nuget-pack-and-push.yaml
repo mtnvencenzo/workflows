@@ -84,6 +84,12 @@ on:
         required: true
         type: boolean
 
+      pre_release:
+        description: "The pre-release version identifier for the package.  Ex. -rc"
+        required: false
+        type: string
+        default: ""
+
     secrets:
       azure_artifacts_base64_pat_token:
         description: "The base64 encoded PAT token for Azure Artifacts"
@@ -228,7 +234,7 @@ jobs:
             --no-restore \
             --no-build \
             --configuration Release \
-            -p:Version=1.0.${{github.run_number}} \
+            -p:Version=1.0.${{github.run_number}}${{inputs.pre_release}} \
             --output 'artifact/${{ inputs.publish_directory_name }}'
 
       - name: List artifact
