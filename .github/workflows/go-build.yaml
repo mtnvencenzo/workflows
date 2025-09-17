@@ -71,7 +71,7 @@ jobs:
             cache-dependency-path: ${{ inputs.go_mod_directory }}/go.sum
 
       - name: Install linter
-        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 
       - name: Go version
         run: go version
