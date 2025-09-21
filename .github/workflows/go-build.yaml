@@ -101,6 +101,9 @@ jobs:
           go-ignore-cov --file "$root_dir/coverage.out" --exclude-globs="**/test/**,cmd/**"
           gocover-cobertura < "$root_dir/coverage.out" > "$root_dir/cobertura.xml"
 
+          echo "listing root dir contents"
+          ls $root_dir
+
       - name: Publish Code Coverage
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
