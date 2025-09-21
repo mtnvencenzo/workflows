@@ -119,7 +119,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           recreate: true
-          path: "$root_dir/code-coverage-results.md"
+          path: "code-coverage-results.md"
 
       - name: Create build distribution directory
         run: mkdir -p dist
