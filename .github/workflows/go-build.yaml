@@ -73,6 +73,9 @@ jobs:
       - name: Install linter
         run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 
+      - name: Install coverage ignore
+        run: go install github.com/quantumcycle/go-ignore-cov@latest
+
       - name: Go version
         run: go version
 
@@ -87,7 +90,7 @@ jobs:
         run: cd ${{ inputs.go_mod_directory }} && golangci-lint run
 
       - name: Test w/coverage
-        run: root_dir=$(realpath ./) && cd ${{ inputs.go_mod_directory }} && go test -cover -coverprofile="$root_dir/coverage.txt" -v ./...
+        run: root_dir=$(realpath ./) && cd ${{ inputs.go_mod_directory }} && go test -cover -coverprofile="$root_dir/coverage.txt" -v ./... && go-ignore-cov --file "$root_dir/coverage.txt" --exclude-globs="**/test/**,cmd/**"
 
       - name: Publish code coverage
         uses: actions/upload-artifact@v4
