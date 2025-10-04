@@ -1,7 +1,7 @@
 name: Cypress Runner
-description: |
-  Runs Cypress tests in a GitHub Actions workflow. This workflow is designed to be reusable and can be called from other workflows.
-  It installs the necessary dependencies, runs linting, executes the Cypress tests, and uploads the test results, screenshots, and videos as artifacts.
+# description: |
+#   Runs Cypress tests in a GitHub Actions workflow. This workflow is designed to be reusable and can be called from other workflows.
+#   It installs the necessary dependencies, runs linting, executes the Cypress tests, and uploads the test results, screenshots, and videos as artifacts.
 on:
   workflow_call:
     inputs:

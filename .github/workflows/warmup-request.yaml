@@ -1,7 +1,7 @@
 name: Warmup request
-description: |
-  This workflow is used to warm up an application by making a request to a specified URL. It is designed to be called from other workflows to ensure that the application is warmed up before performing any operations.
-  It retries the request up to 5 times if it fails, with a 2-second delay between retries. The workflow can be triggered manually or by other workflows.
+# description: |
+#   This workflow is used to warm up an application by making a request to a specified URL. It is designed to be called from other workflows to ensure that the application is warmed up before performing any operations.
+#   It retries the request up to 5 times if it fails, with a 2-second delay between retries. The workflow can be triggered manually or by other workflows.
 on:
   workflow_call:
     inputs:

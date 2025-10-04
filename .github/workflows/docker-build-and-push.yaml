@@ -1,7 +1,7 @@
 name: Docker build and push
-description: |
-  This workflow builds and pushes a docker image to an Azure Container Registry (ACR) using the Docker CLI.
-  This workflow is designed to be reusable and can be called from other workflows.
+# description: |
+#   This workflow builds and pushes a docker image to an Azure Container Registry (ACR) using the Docker CLI.
+#   This workflow is designed to be reusable and can be called from other workflows.
 on:
   workflow_call:
     inputs:

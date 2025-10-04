@@ -1,7 +1,7 @@
 name: UI Storybook Build
-description: |
-    This workflow builds and deploys the UI Storybook documentation for a component library to a static website in azure storage.
-    This workflow is designed to be reusable and can be called from other workflows.
+# description: |
+#     This workflow builds and deploys the UI Storybook documentation for a component library to a static website in azure storage.
+#     This workflow is designed to be reusable and can be called from other workflows.
 on:
   workflow_call:
     inputs:
