@@ -4,7 +4,7 @@ Provide a concise description of the change and link any related issues.
 
 - Issue # (issue)
 
-## � Change Type
+## 🧩 Change Type
 
 - [ ] New reusable workflow
 - [ ] Workflow enhancement
@@ -31,6 +31,6 @@ Explain how you verified the change. Include links to workflow runs, logs, or sa
 - [ ] PR title follows Conventional Commit style
 - [ ] Linked issues are in the correct state (open/ready for work)
 
-## � Additional Context
+## 📎 Additional Context
 
 Add any screenshots, logs, or notes that help reviewers understand the change.

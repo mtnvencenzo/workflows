@@ -2,7 +2,7 @@
 
 Looking for help with the GitHub Reusable Workflows project? This guide explains where to find information and how to reach the maintainers.
 
-## Start with the Docs
+## 📚 Start with the Docs
 
 Please review the existing documentation before opening a request:
 
@@ -11,14 +11,14 @@ Please review the existing documentation before opening a request:
 - [Code of Conduct](./CODE_OF_CONDUCT.md) – community expectations
 - [Security Policy](./SECURITY.md) – how to report sensitive issues
 
-## Ask a Question
+## 💬 Ask a Question
 
 Use GitHub Discussions for general questions, design ideas, or implementation advice:
 
 - [Open a new discussion](../../discussions/new)
 - Tag your discussion with `question` or `idea` for quicker triage
 
-## Report a Problem
+## 🐛 Report a Problem
 
 If you encounter an issue with a workflow or composite action:
 
@@ -26,7 +26,7 @@ If you encounter an issue with a workflow or composite action:
 2. If the problem is new, open a ticket using the appropriate template at [New Issue](../../issues/new/choose).
 3. Include the workflow file you were running, the inputs used, and a link to the failing run if possible.
 
-## Request Enhancements
+## ✨ Request Enhancements
 
 Feature ideas are welcome. Suggest them via:
 
@@ -35,7 +35,7 @@ Feature ideas are welcome. Suggest them via:
 
 Please describe the problem you are trying to solve, how the new workflow or step would help, and any constraints we should consider.
 
-## Response Times
+## ⏱️ Response Times
 
 Target response windows (best effort):
 
@@ -43,7 +43,7 @@ Target response windows (best effort):
 - Critical workflow breakages: within **2 business days**
 - Feature requests and questions: within **1 week**
 
-## Private Support
+## 🔒 Private Support
 
 For confidential matters (for example, potential security vulnerabilities or sensitive log data) contact [@mtnvencenzo](https://github.com/mtnvencenzo).
 

@@ -1,10 +1,10 @@
 # 🔒 Security Policy
 
-## Supported Versions
+## 📦 Supported Versions
 
 This repository publishes reusable GitHub Actions workflows and composite actions. The `main` branch is the actively maintained version. If a security issue is discovered, fixes will be applied to `main` and can be consumed by pinning to the latest commit SHA or tag.
 
-## Reporting a Vulnerability
+## 🚨 Reporting a Vulnerability
 
 Please report security concerns privately. Do **not** open a public GitHub issue that exposes sensitive information.
 
@@ -20,12 +20,12 @@ To help us triage quickly, include:
 
 We will acknowledge reports within **48 hours** and provide status updates at least once per week until the issue is resolved.
 
-## Disclosure Policy
+## 🔓 Disclosure Policy
 
 - We prefer coordinated disclosure. Please allow maintainers reasonable time to create and publish a fix.
 - When the issue is resolved, we will publish a security advisory summarizing the impact, mitigation, and acknowledgements (unless you request anonymity).
 
-## Hardening Guidance for Consumers
+## 🧰 Hardening Guidance for Consumers
 
 If you are consuming these workflows:
 

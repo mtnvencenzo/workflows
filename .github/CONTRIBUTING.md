@@ -1,15 +1,8 @@
-yarn coverage
-yarn analyze
-yarn test          # Run tests
-yarn coverage      # Run with coverage
-yarn testui        # Interactive test UI
-yarn cypress open  # Interactive mode
-yarn cypress run   # Headless mode
-# Contributing to GitHub Reusable Workflows
+# 🤝 Contributing to GitHub Reusable Workflows
 
 Thanks for your interest in improving this collection of reusable GitHub Actions workflows! Contributions that make the workflows clearer, safer, and easier to consume are very welcome.
 
-## � Table of Contents
+## 📋 Table of Contents
 
 - [Getting Started](#getting-started)
 - [Workflow Development](#workflow-development)
@@ -18,9 +11,9 @@ Thanks for your interest in improving this collection of reusable GitHub Actions
 - [Submitting Your Contribution](#submitting-your-contribution)
 - [Getting Help](#getting-help)
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
+### 📦 Prerequisites
 
 Please have the following installed locally:
 
@@ -42,7 +35,7 @@ Create a feature branch before making changes:
 git checkout -b feature/update-workflow
 ```
 
-## Workflow Development
+## 🧭 Workflow Development
 
 This repository is purely infrastructure-as-code for automation. When adding or modifying workflows:
 
@@ -53,7 +46,7 @@ This repository is purely infrastructure-as-code for automation. When adding or 
 - Use conditionals (`if:`) and matrix builds judiciously—aim for clarity.
 - When deprecating a workflow, add a notice in the README and consider keeping a stub that fails fast with guidance.
 
-## Testing Changes
+## 🧪 Testing Changes
 
 Because workflows execute remotely, validating them locally requires a little creativity:
 
@@ -68,7 +61,7 @@ Because workflows execute remotely, validating them locally requires a little cr
 
 4. **Documentation updates** – If you change required inputs, outputs, or behavior, update the README usage snippets accordingly.
 
-## Style Guidelines
+## 🎨 Style Guidelines
 
 - Follow the existing YAML layout (two-space indentation, lower-case keys).
 - Group related steps logically and give them concise, action-oriented names.
@@ -76,7 +69,7 @@ Because workflows execute remotely, validating them locally requires a little cr
 - Keep shell scripts POSIX-compatible unless a specific shell is required; declare the shell explicitly in `run:` blocks when deviating from Bash.
 - Store helper scripts under `.github/scripts/` if they are reused.
 
-## Submitting Your Contribution
+## 📮 Submitting Your Contribution
 
 1. **Commit** your work using [Conventional Commits](https://www.conventionalcommits.org/):
    ```bash
@@ -104,7 +97,7 @@ Because workflows execute remotely, validating them locally requires a little cr
 
 4. **Review feedback** – Be responsive to comments. We prefer incremental improvements over large rewrites, so don’t hesitate to split work into smaller PRs.
 
-## Getting Help
+## 🆘 Getting Help
 
 - Open a [GitHub Discussion](https://github.com/mtnvencenzo/workflows/discussions) for ideas or questions.
 - Use [GitHub Issues](https://github.com/mtnvencenzo/workflows/issues) to report bugs or request new workflows.
