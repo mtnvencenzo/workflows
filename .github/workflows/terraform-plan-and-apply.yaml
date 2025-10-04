@@ -163,10 +163,6 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ### Terraform :rocket:
-            #### Terraform init
-            ```bash
-            ${{ steps.init.outputs.stdout }}
-            ```
             #### Terraform format
             ```bash
             ${{ steps.format.outputs.stdout }}
