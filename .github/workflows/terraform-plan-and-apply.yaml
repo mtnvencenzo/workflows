@@ -152,7 +152,8 @@ jobs:
         uses: peter-evans/find-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-includes: 'This is a comment created by the terraform-plan-and-apply.yaml workflow'
+          body-includes: '<!-- tf-plan-comment: terraform-plan-and-apply -->'
+          comment-author: 'github-actions[bot]'
 
       - name: Terraform upsert comment on pr
         if: ${{ github.event_name == 'pull_request' }}
@@ -162,6 +163,7 @@ jobs:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
+            <!-- tf-plan-comment: terraform-plan-and-apply -->
             ### Terraform :rocket:
             #### Terraform format
             ```bash
@@ -176,7 +178,7 @@ jobs:
             ${{ steps.plan.outputs.stdout }}
             ```
 
-            *This is a comment created by the terraform-plan-and-apply.yaml workflow. It will be updated if the workflow is run again.*
+            *This comment is managed by the terraform-plan-and-apply.yaml workflow and will be updated on subsequent runs.*
           edit-mode: replace
           reactions: eyes
   
