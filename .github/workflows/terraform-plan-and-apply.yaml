@@ -149,7 +149,7 @@ jobs:
       - name: Terraform find comment on pr
         if: ${{ github.event_name == 'pull_request' }}
         id: fc
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: '<!-- tf-plan-comment: terraform-plan-and-apply -->'
