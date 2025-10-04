@@ -1,7 +1,7 @@
 name: Terraform plan and apply
-description: |
-  This workflow is triggered by a pull request to the main branch or when running on the main branch. It checks out the code, initializes Terraform, and runs `terraform plan` and optionally `terraform apply` if the environment is production.  Terraform apply required an approval for it to execute.
-  It requires and uses Azure storage account information and credentials as the state store for terraform.
+# description: |
+#   This workflow is triggered by a pull request to the main branch or when running on the main branch. It checks out the code, initializes Terraform, and runs `terraform plan` and optionally `terraform apply` if the environment is production.  Terraform apply required an approval for it to execute.
+#   It requires and uses Azure storage account information and credentials as the state store for terraform.
 on:
   workflow_call:
     inputs:

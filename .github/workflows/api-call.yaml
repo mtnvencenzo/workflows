@@ -1,6 +1,6 @@
 name: Api call
-description: |
-  This workflow is used to call an api and check the response status code.  If the status code is not as expected, the workflow will fail.
+# description: |
+#   This workflow is used to call an api and check the response status code.  If the status code is not as expected, the workflow will fail.
 on:
   workflow_call:
     inputs:

@@ -1,7 +1,7 @@
 name: NPM Package Publish
-description: |
-    This workflow builds and publishes a user scoped npm package to GitHub Packages.
-    This workflow is designed to be reusable and can be called from other workflows.
+# description: |
+#     This workflow builds and publishes a user scoped npm package to GitHub Packages.
+#     This workflow is designed to be reusable and can be called from other workflows.
 on:
   workflow_call:
     inputs:

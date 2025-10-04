@@ -1,8 +1,8 @@
 name: Azure blob upload
-description: |
-    Upload files to an Azure blob storage account. This is useful for uploading artifacts or static files that are needed for deployments or other purposes.
-    The workflow can be triggered manually or by another workflow using the `workflow_call` event.
-    It requires Azure credentials and the name of the storage account and container to upload files to.
+# description: |
+#     Upload files to an Azure blob storage account. This is useful for uploading artifacts or static files that are needed for deployments or other purposes.
+#     The workflow can be triggered manually or by another workflow using the `workflow_call` event.
+#     It requires Azure credentials and the name of the storage account and container to upload files to.
 on:
   workflow_call:
     inputs:

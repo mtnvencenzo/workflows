@@ -1,7 +1,7 @@
 name: Dotnet Nuget Pack and Push
-description: |
-  This workflow builds, tests, and packages a .NET project into a NuGet package. It also pushes the package to specified NuGet feeds (Azure Artifacts and GitHub Packages). The workflow is designed to be reusable and can be called from other workflows.
-  This workflow is designed to be reusable and can be called from other workflows.
+# description: |
+#   This workflow builds, tests, and packages a .NET project into a NuGet package. It also pushes the package to specified NuGet feeds (Azure Artifacts and GitHub Packages). The workflow is designed to be reusable and can be called from other workflows.
+#   This workflow is designed to be reusable and can be called from other workflows.
 on:
   workflow_call:
     inputs:

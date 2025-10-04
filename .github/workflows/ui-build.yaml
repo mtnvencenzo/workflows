@@ -1,7 +1,7 @@
 name: UI Build
-description: |
-    This workflow builds the UI application. It installs dependencies, runs linting, tests, builds the application and uploads the build artifact.
-    This workflow is designed to be reusable and can be called from other workflows.
+# description: |
+#     This workflow builds the UI application. It installs dependencies, runs linting, tests, builds the application and uploads the build artifact.
+#     This workflow is designed to be reusable and can be called from other workflows.
 on:
   workflow_call:
     inputs:
@@ -31,6 +31,20 @@ on:
         required: false
         default: true
         type: boolean
+      version:
+        description: "The version of the application"
+        required: false
+        type: string
+        default: "1.0.0"
+      version_file_path:
+        description: "The path to the version file"
+        required: false
+        type: string
+      version_tag:
+        description: "The version tag to use"
+        required: false
+        type: string
+
     secrets:
       github_packages_pat_token:
         description: "The pat token used to access github packages"
@@ -74,6 +88,23 @@ jobs:
       - name: Lint
         working-directory: ${{ inputs.working_directory }}
         run: yarn lint
+
+      - name: Update version file
+        if: ${{ inputs.version_file_path != '' && inputs.version != '' }}
+        working-directory: ${{ inputs.working_directory }}
+        env:
+          VERSION: ${{ inputs.version }}
+          VERSION_TAG: ${{ inputs.version_tag }}
+          VERSION_FILE_PATH: ${{ inputs.version_file_path }}
+        run: |
+          set -euo pipefail
+
+          full_version="$VERSION"
+          if [[ -n "$VERSION_TAG" ]]; then
+            full_version="${full_version}+${VERSION_TAG}"
+          fi
+
+          printf '{\n    "version": "%s"\n}\n' "$full_version" > "$VERSION_FILE_PATH"
 
       - name: Test and coverage
         working-directory: ${{ inputs.working_directory }}

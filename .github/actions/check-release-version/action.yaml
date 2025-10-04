@@ -19,9 +19,7 @@ inputs:
   timeout_seconds:
     description: 'The timeout in seconds to wait for the version to be deployed'
     required: false
-    default: 300
-env:
-  AUTH_VALUE: ''
+    default: "300"
 
 runs:
   using: 'composite'

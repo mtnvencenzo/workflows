@@ -4,25 +4,18 @@ inputs:
   url:
     description: "The url to call"
     required: true
-    type: string
   statusCode:
     description: "The expected status code of the response"
     default: "200"
-    type: string
   enabled:
     description: "Allow the api to run. This is used to determine if the job should run or not"
-    type: boolean
     required: true
   authHeader:
     description: "The optional authentication header name to use for supplying the auth value"
     default: ""
-    type: string
   method:
     description: "The method to use for the api call"
     default: "GET"
-    type: string
-env:
-  AUTH_VALUE: ''
 
 runs:
   using: 'composite'
