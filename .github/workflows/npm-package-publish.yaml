@@ -53,7 +53,7 @@ jobs:
           path: npm.package.publish
 
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           always-auth: true
           node-version: '${{ inputs.node_version }}'
