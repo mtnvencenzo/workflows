@@ -89,9 +89,7 @@ jobs:
         with:
           python-version: ${{ inputs.python_version }}
           cache: 'pip'
-          cache-dependency-path: |
-            ${{ inputs.working_directory }}/${{ inputs.requirements_file }}
-            ${{ inputs.working_directory }}/${{ inputs.requirements_dev_file }}
+          cache-dependency-path: '**/requirements*.txt'
 
       - name: Install dependencies
         working-directory: ${{ inputs.working_directory }}
