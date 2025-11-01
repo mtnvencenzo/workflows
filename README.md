@@ -206,6 +206,26 @@ jobs:
       version: '1.0.0'
 ```
 
+### 13. Python Build (`.github/workflows/python-build.yaml`)
+Builds Python applications with ruff linting, pytest testing, coverage reporting, and artifact packaging.
+
+Usage
+```yaml
+jobs:
+  python:
+    uses: mtnvencenzo/workflows/.github/workflows/python-build.yaml@main
+    with:
+      python_version: '3.12'
+      working_directory: './data-extraction-agent'
+      requirements_file: 'requirements.txt'
+      ruff_config: '.ruff.toml'
+      pytest_args: '-v'
+      upload_artifact: true
+      artifact_name: 'python-build-artifact'
+      setup_files: '["README.md","LICENSE"]'
+      version: '1.0.0'
+```
+
 ## 🧩 Composite Actions
 
 These are step-level actions you can compose inside your own workflows.
