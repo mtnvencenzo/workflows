@@ -64,6 +64,11 @@ on:
         type: string
         default: "1.0.0"
 
+    secrets:
+      github_packages_pat_token:
+        description: "The PAT token for github packages"
+        required: false
+
   workflow_dispatch:
 
 jobs:
