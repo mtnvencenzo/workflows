@@ -218,6 +218,7 @@ jobs:
       python_version: '3.12'
       working_directory: './data-extraction-agent'
       requirements_file: 'requirements.txt'
+      requirements_dev_file: 'requirements-dev.txt'  # Optional: dev tools for linting/testing
       ruff_config: '.ruff.toml'
       pytest_args: '-v'
       upload_artifact: true

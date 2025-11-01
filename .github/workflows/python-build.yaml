@@ -22,6 +22,12 @@ on:
         type: string
         default: "requirements.txt"
 
+      requirements_dev_file:
+        description: "Path to the dev requirements file relative to working_directory (optional, for linting/testing tools)"
+        required: false
+        type: string
+        default: ""
+
       ruff_config:
         description: "Path to ruff configuration file relative to working_directory"
         required: false
@@ -86,11 +92,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ${{ inputs.requirements_file }}
 
-      - name: Install ruff
-        run: pip install ruff
-
-      - name: Install pytest and coverage tools
-        run: pip install pytest pytest-cov
+      - name: Install dev dependencies
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          if [ -n "${{ inputs.requirements_dev_file }}" ]; then
+            pip install -r ${{ inputs.requirements_dev_file }}
+          else
+            pip install ruff pytest pytest-cov pytest-mock
+          fi
 
       - name: Ruff format check
         working-directory: ${{ inputs.working_directory }}
