@@ -165,21 +165,23 @@ jobs:
         if: ${{ inputs.upload_artifact }}
         working-directory: ${{ inputs.working_directory }}
         run: |
-          # Create artifact directory
-          mkdir -p ../artifact
+          # Create artifact directory at repo root
+          mkdir -p ${{ github.workspace }}/artifact
           
           # Copy application files (exclude test directories, cache, and config files)
           rsync -av --exclude='test/' --exclude='__pycache__/' --exclude='.pytest_cache/' \
             --exclude='.ruff_cache/' --exclude='.env*' --exclude='*.pyc' \
             --exclude='coverage.xml' --exclude='pytest-results.xml' \
-            . ../artifact/
+            . ${{ github.workspace }}/artifact/
           
           # Copy setup files if provided
           if [ -n "${{ inputs.setup_files }}" ]; then
             IFS=', ' read -r -a files <<< "$(echo "${{ inputs.setup_files }}" | tr -d '[]"')"
             for file in "${files[@]}"; do
-              if [[ -f "../$file" ]]; then
-                cp "../$file" "../artifact/"
+              # Remove leading ./ if present
+              file="${file#./}"
+              if [[ -f "${{ github.workspace }}/$file" ]]; then
+                cp "${{ github.workspace }}/$file" "${{ github.workspace }}/artifact/"
                 echo "Copied '$file' to 'artifact/'"
               else
                 echo "File '$file' not found."
@@ -189,11 +191,10 @@ jobs:
 
       - name: List artifact contents
         if: ${{ inputs.upload_artifact }}
-        working-directory: ${{ inputs.working_directory }}
         run: |
           echo "Files in artifact directory:"
           echo "------------------------------------------------------------------"
-          cd ../artifact
+          cd ${{ github.workspace }}/artifact
           ls -R
 
       - name: Upload artifact
@@ -201,6 +202,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact_name }}
-          path: artifact
+          path: ${{ github.workspace }}/artifact
           include-hidden-files: false
           if-no-files-found: error
