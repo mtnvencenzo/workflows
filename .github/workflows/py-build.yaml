@@ -135,6 +135,18 @@ jobs:
             --cov-report=term \
             --junitxml=pytest-results.xml
 
+      - name: Build package distribution
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          poetry build
+
+      - name: Upload package distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-dist
+          path: ${{ inputs.working_directory }}/dist/*
+          if-no-files-found: error
+
       - name: Publish Code Coverage
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
