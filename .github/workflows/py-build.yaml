@@ -1,0 +1,209 @@
+name: Python Build
+# description: |
+#     This workflow builds Python applications. It installs dependencies, runs linting with ruff, runs tests with pytest, and uploads the build artifact.
+#     This workflow is designed to be reusable and can be called from other workflows.
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: "The version of Python to use"
+        required: false
+        type: string
+        default: "3.12"
+
+      working_directory:
+        description: "The working directory containing the Python application"
+        required: true
+        type: string
+
+      ruff_config:
+        description: "Path to ruff configuration file relative to working_directory"
+        required: false
+        type: string
+        default: ".ruff.toml"
+
+      pytest_args:
+        description: "Additional arguments to pass to pytest"
+        required: false
+        type: string
+        default: ""
+
+      coverage_source:
+        description: "Source directory for coverage reporting (relative to working_directory)"
+        required: false
+        type: string
+        default: "."
+
+      setup_files:
+        description: "JSON array of files to include in the artifact (e.g. ['README.md', 'LICENSE'])"
+        required: false
+        type: string
+        default: ""
+
+      artifact_name:
+        description: "The name of the artifact to upload"
+        required: false
+        type: string
+        default: "python-build-artifact"
+
+      upload_artifact:
+        description: "Whether to upload the build artifact"
+        required: false
+        type: boolean
+        default: true
+
+      version:
+        description: "The version of the application"
+        required: false
+        type: string
+        default: "1.0.0"
+
+    secrets:
+      github_packages_pat_token:
+        description: "The PAT token for github packages"
+        required: false
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and test Python app
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pypoetry
+            ${{ inputs.working_directory }}/.venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles(format('{0}/poetry.lock', inputs.working_directory)) }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Configure poetry
+        run: |
+          poetry config virtualenvs.in-project true
+          poetry config cache-dir ${HOME}/.cache/pypoetry
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          poetry install
+
+      - name: Ruff format
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          if [ -f "${{ inputs.ruff_config }}" ]; then
+            poetry run ruff format --check --config ${{ inputs.ruff_config }} .
+          else
+            poetry run ruff format --check .
+          fi
+
+      - name: Ruff lint check
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          if [ -f "${{ inputs.ruff_config }}" ]; then
+            poetry run ruff check --config ${{ inputs.ruff_config }} .
+          else
+            poetry run ruff check .
+          fi
+
+      - name: Run tests with coverage
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          poetry run pytest ${{ inputs.pytest_args }} \
+            --cov=${{ inputs.coverage_source }} \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term \
+            --junitxml=pytest-results.xml
+
+      - name: Publish Code Coverage
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: "${{ inputs.working_directory }}/coverage.xml"
+          badge: true
+          fail_below_min: false
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: false
+          indicators: true
+          output: both
+          thresholds: "10 30"
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ inputs.working_directory }}/pytest-results.xml
+          retention-days: 5
+
+      - name: Prepare artifact
+        if: ${{ inputs.upload_artifact }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          # Create artifact directory at repo root
+          mkdir -p ${{ github.workspace }}/artifact
+          
+          # Copy application files (exclude test directories, cache, and config files)
+          rsync -av --exclude='test/' --exclude='__pycache__/' --exclude='.pytest_cache/' \
+            --exclude='.ruff_cache/' --exclude='.env*' --exclude='*.pyc' \
+            --exclude='coverage.xml' --exclude='pytest-results.xml' \
+            . ${{ github.workspace }}/artifact/
+          
+          # Copy setup files if provided
+          if [ -n "${{ inputs.setup_files }}" ]; then
+            IFS=', ' read -r -a files <<< "$(echo "${{ inputs.setup_files }}" | tr -d '[]"')"
+            for file in "${files[@]}"; do
+              # Remove leading ./ if present
+              file="${file#./}"
+              if [[ -f "${{ github.workspace }}/$file" ]]; then
+                cp "${{ github.workspace }}/$file" "${{ github.workspace }}/artifact/"
+                echo "Copied '$file' to 'artifact/'"
+              else
+                echo "File '$file' not found."
+              fi
+            done
+          fi
+
+      - name: List artifact contents
+        if: ${{ inputs.upload_artifact }}
+        run: |
+          echo "Files in artifact directory:"
+          echo "------------------------------------------------------------------"
+          cd ${{ github.workspace }}/artifact
+          ls -R
+
+      - name: Upload artifact
+        if: ${{ inputs.upload_artifact }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ github.workspace }}/artifact
+          include-hidden-files: false
+          if-no-files-found: error

@@ -1,0 +1,67 @@
+name: Publish python package
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: "The version of Python to use"
+        required: false
+        type: string
+        default: "3.12"
+
+      artifact_name:
+        description: "The name of the artifact containing the built package (dist folder)"
+        required: false
+        type: string
+        default: "python-package-dist"
+
+      repository_url:
+        description: "The repository URL for twine (default is GitHub Packages)"
+        required: false
+        type: string
+        default: "https://upload.pypi.org/legacy/"
+
+      twine_username:
+        description: "The username for twine authentication (use '__token__' for PyPI, or GitHub username for GitHub Packages)"
+        required: false
+        type: string
+
+    secrets:
+      github_packages_pat_token:
+        description: "The PAT token used to publish to GitHub Packages"
+        required: true
+
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish Python Package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Download built package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: dist
+
+      - name: Install twine
+        run: |
+          python -m pip install --upgrade pip
+          pip install twine
+
+      - name: Publish package to GitHub Packages
+        env:
+          TWINE_USERNAME: ${{ inputs.twine_username }}
+          TWINE_PASSWORD: ${{ secrets.github_packages_pat_token }}
+          TWINE_REPOSITORY_URL: ${{ inputs.repository_url }}
+        run: |
+          python -m twine upload --repository-url $TWINE_REPOSITORY_URL dist/* --skip-existing
