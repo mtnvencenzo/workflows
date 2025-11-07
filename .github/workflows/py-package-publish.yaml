@@ -62,7 +62,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.artifact_name }}
-          path: dist
+          path: ${{ inputs.artifact_name }}
 
       - name: Install twine
         run: |
@@ -71,10 +71,11 @@ jobs:
 
       - name: Publish package to GitHub Packages
         if: ${{ inputs.allow_publish == true }}
+        working-directory: ${{ inputs.artifact_name }}
         env:
           TWINE_USERNAME: ${{ inputs.twine_username }}
           TWINE_PASSWORD: ${{ secrets.github_packages_pat_token }}
           TWINE_REPOSITORY_URL: ${{ inputs.repository_url }}
         run: |
           ls -R
-          python -m twine upload --repository-url $TWINE_REPOSITORY_URL dist/*
+          python -m twine upload --verbose --repository-url $TWINE_REPOSITORY_URL dist/*
