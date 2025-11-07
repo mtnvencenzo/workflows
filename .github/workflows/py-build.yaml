@@ -58,6 +58,24 @@ on:
         type: string
         default: "1.0.0"
 
+      generate_stubs:
+        description: "Whether to generate type stubs"
+        required: false
+        type: boolean
+        default: true
+
+      stubs_output_dir:
+        description: "Directory to output generated type stubs (relative to working_directory)"
+        required: false
+        type: string
+        default: "stubs"
+
+      stubs_project_name:
+        description: "The project name for which to generate stubs"
+        required: false
+        type: string
+        default: ""
+
   workflow_dispatch:
 
 jobs:
@@ -164,6 +182,12 @@ jobs:
           name: test-results
           path: ${{ inputs.working_directory }}/pytest-results.xml
           retention-days: 5
+
+      - name: Generate stubs
+        if: ${{ inputs.generate_stubs }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          poetry run stubgen -p ${{ inputs.stubs_project_name }} -o ${{ inputs.stubs_output_dir }}
 
       - name: Build package distribution
         working-directory: ${{ inputs.working_directory }}
