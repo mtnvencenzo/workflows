@@ -70,12 +70,11 @@ jobs:
           pip install twine
 
       - name: Publish package to GitHub Packages
-        working-directory: ${{ inputs.working_directory }}
         if: ${{ inputs.allow_publish == true }}
         env:
           TWINE_USERNAME: ${{ inputs.twine_username }}
           TWINE_PASSWORD: ${{ secrets.github_packages_pat_token }}
           TWINE_REPOSITORY_URL: ${{ inputs.repository_url }}
         run: |
-          ls -la dist
+          ls -R
           python -m twine upload --repository-url $TWINE_REPOSITORY_URL dist/*
