@@ -58,11 +58,6 @@ on:
         type: string
         default: "1.0.0"
 
-    secrets:
-      github_packages_pat_token:
-        description: "The PAT token for github packages"
-        required: false
-
   workflow_dispatch:
 
 jobs:
@@ -107,6 +102,13 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         run: |
           poetry install
+
+      - name: Update package version
+        if: ${{ inputs.version != '' && inputs.version != '1.0.0' }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          poetry version ${{ inputs.version }}
+          echo "Updated package version to ${{ inputs.version }}"
 
       - name: Ruff format
         working-directory: ${{ inputs.working_directory }}
