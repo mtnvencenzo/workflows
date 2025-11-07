@@ -26,6 +26,12 @@ on:
         required: false
         type: string
 
+      skip_publish:
+        description: "Whether to skip the publish step"
+        required: false
+        type: boolean
+        default: false
+
     secrets:
       github_packages_pat_token:
         description: "The PAT token used to publish to GitHub Packages"
@@ -59,6 +65,7 @@ jobs:
           pip install twine
 
       - name: Publish package to GitHub Packages
+        if: ${{ inputs.skip_publish == false }}
         env:
           TWINE_USERNAME: ${{ inputs.twine_username }}
           TWINE_PASSWORD: ${{ secrets.github_packages_pat_token }}
