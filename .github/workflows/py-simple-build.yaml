@@ -101,7 +101,7 @@ jobs:
       - name: Install dependencies
         working-directory: ${{ inputs.working_directory }}
         run: |
-          poetry install
+          poetry install --no-root
 
       - name: Update project version
         if: ${{ inputs.version != '' && inputs.version != '1.0.0' }}
