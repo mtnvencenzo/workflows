@@ -38,8 +38,8 @@ on:
         default: true
 
     secrets:
-      github_packages_pat_token:
-        description: "The PAT token used to publish to GitHub Packages"
+      repo_packages_pat_token:
+        description: "The PAT token used to publish to pypi packages"
         required: true
 
   workflow_dispatch:
@@ -73,7 +73,7 @@ jobs:
         if: ${{ inputs.allow_publish == true }}
         env:
           TWINE_USERNAME: ${{ inputs.twine_username }}
-          TWINE_PASSWORD: ${{ secrets.github_packages_pat_token }}
+          TWINE_PASSWORD: ${{ secrets.repo_packages_pat_token }}
           TWINE_REPOSITORY_URL: ${{ inputs.repository_url }}
         run: |
           ls -R ${{ inputs.artifact_name }}
