@@ -71,4 +71,4 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.github_packages_pat_token }}
           TWINE_REPOSITORY_URL: ${{ inputs.repository_url }}
         run: |
-          python -m twine upload --repository-url $TWINE_REPOSITORY_URL dist/*
+          python -m twine upload --repository-url $TWINE_REPOSITORY_URL dist/*.tar.gz dist/*.whl
