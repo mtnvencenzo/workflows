@@ -1,6 +1,6 @@
 name: Python Build
 # description: |
-#     This workflow builds Python applications. It installs dependencies, runs linting with ruff, runs tests with pytest, and uploads the build artifact.
+#     This workflow builds Python applications.  It installs dependencies, runs linting with ruff, runs tests with pytest, and uploads the build artifact.
 #     This workflow is designed to be reusable and can be called from other workflows.
 on:
   workflow_call:
@@ -57,6 +57,12 @@ on:
         required: false
         type: string
         default: "1.0.0"
+
+      create_distribution:
+        description: "Whether to create a distribution package"
+        required: false
+        type: boolean
+        default: true
 
       generate_stubs:
         description: "Whether to generate type stubs"
@@ -189,7 +195,8 @@ jobs:
         run: |
           poetry run stubgen -p ${{ inputs.stubs_project_name }} -o ${{ inputs.stubs_output_dir }}
 
-      - name: Build package distribution
+      - name: Build distribution
+        if: ${{ inputs.create_distribution }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           poetry build
