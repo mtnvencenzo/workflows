@@ -3,6 +3,11 @@ name: Publish python package
 on:
   workflow_call:
     inputs:
+      working_directory:
+        description: "The working directory containing the Python application"
+        required: true
+        type: string
+
       python_version:
         description: "The version of Python to use"
         required: false
@@ -65,6 +70,7 @@ jobs:
           pip install twine
 
       - name: Publish package to GitHub Packages
+        working-directory: ${{ inputs.working_directory }}
         if: ${{ inputs.allow_publish == true }}
         env:
           TWINE_USERNAME: ${{ inputs.twine_username }}
@@ -72,4 +78,4 @@ jobs:
           TWINE_REPOSITORY_URL: ${{ inputs.repository_url }}
         run: |
           ls -la dist
-          python -m twine upload --repository-url $TWINE_REPOSITORY_URL dist/*.tar.gz dist/*.whl
+          python -m twine upload --repository-url $TWINE_REPOSITORY_URL dist/*
