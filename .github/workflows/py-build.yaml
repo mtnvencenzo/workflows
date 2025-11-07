@@ -137,19 +137,7 @@ jobs:
             --cov-report=term \
             --junitxml=pytest-results.xml
 
-      - name: Build package distribution
-        working-directory: ${{ inputs.working_directory }}
-        run: |
-          poetry build
-
-      - name: Upload package distribution
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-package-dist
-          path: ${{ inputs.working_directory }}/dist/*
-          if-no-files-found: error
-
-      - name: Publish Code Coverage
+      - name: Publish code coverage
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
           filename: "${{ inputs.working_directory }}/coverage.xml"
@@ -162,14 +150,14 @@ jobs:
           output: both
           thresholds: "10 30"
 
-      - name: Add Coverage PR Comment
+      - name: Add coverage pr comments
         uses: marocchino/sticky-pull-request-comment@v2
         if: github.event_name == 'pull_request'
         with:
           recreate: true
           path: code-coverage-results.md
 
-      - name: Upload Test Results
+      - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -177,47 +165,22 @@ jobs:
           path: ${{ inputs.working_directory }}/pytest-results.xml
           retention-days: 5
 
-      - name: Prepare artifact
-        if: ${{ inputs.upload_artifact }}
+      - name: Build package distribution
         working-directory: ${{ inputs.working_directory }}
         run: |
-          # Create artifact directory at repo root
-          mkdir -p ${{ github.workspace }}/artifact
-          
-          # Copy application files (exclude test directories, cache, and config files)
-          rsync -av --exclude='test/' --exclude='__pycache__/' --exclude='.pytest_cache/' \
-            --exclude='.ruff_cache/' --exclude='.env*' --exclude='*.pyc' \
-            --exclude='coverage.xml' --exclude='pytest-results.xml' \
-            . ${{ github.workspace }}/artifact/
-          
-          # Copy setup files if provided
-          if [ -n "${{ inputs.setup_files }}" ]; then
-            IFS=', ' read -r -a files <<< "$(echo "${{ inputs.setup_files }}" | tr -d '[]"')"
-            for file in "${files[@]}"; do
-              # Remove leading ./ if present
-              file="${file#./}"
-              if [[ -f "${{ github.workspace }}/$file" ]]; then
-                cp "${{ github.workspace }}/$file" "${{ github.workspace }}/artifact/"
-                echo "Copied '$file' to 'artifact/'"
-              else
-                echo "File '$file' not found."
-              fi
-            done
-          fi
+          poetry build
 
       - name: List artifact contents
-        if: ${{ inputs.upload_artifact }}
+        working-directory: ${{ inputs.working_directory }}
         run: |
           echo "Files in artifact directory:"
           echo "------------------------------------------------------------------"
-          cd ${{ github.workspace }}/artifact
-          ls -R
+          ls dist -R
 
       - name: Upload artifact
-        if: ${{ inputs.upload_artifact }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact_name }}
-          path: ${{ github.workspace }}/artifact
+          path: ${{ inputs.working_directory }}/dist/*
           include-hidden-files: false
           if-no-files-found: error
