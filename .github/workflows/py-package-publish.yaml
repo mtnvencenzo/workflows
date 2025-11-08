@@ -8,6 +8,11 @@ on:
         required: true
         type: string
 
+      environment_name:
+        description: "The environment name the job is running in.  Useful for approvals."
+        required: true
+        type: string
+
       python_version:
         description: "The version of Python to use"
         required: false
@@ -48,6 +53,7 @@ jobs:
   publish:
     name: Publish Python Package
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment_name }}
 
     steps:
       - name: Checkout code
