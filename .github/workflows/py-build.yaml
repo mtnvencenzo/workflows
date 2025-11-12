@@ -58,6 +58,12 @@ on:
         type: string
         default: ""
 
+      unpack_directory:
+        description: "The directory to pull from the unpacked file"
+        required: false
+        type: string
+        default: ""
+
       version:
         description: "The version of the application"
         required: false
@@ -222,7 +228,7 @@ jobs:
           echo "Contents of dist directory:"
           ls -la dist/
 
-      - name: Prepare specified file for artifact
+      - name: Unpack file for artifact
         if: ${{ inputs.create_distribution && inputs.unpack_filename != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
@@ -232,6 +238,15 @@ jobs:
           if [ -f "$FILE_TO_UNPACK" ]; then
             echo "Extracting ${FILE_TO_UNPACK} to dist directory..."
             tar -xzf "$FILE_TO_UNPACK" -C dist/
+
+            if [ "${{ inputs.unpack_directory }}" != "" ]; then
+              echo "Moving contents from ${{
+                inputs.unpack_directory
+              }} to dist root..."
+              mv "dist/${{ inputs.unpack_directory }}"/* dist/
+              rm -rf "dist/${{ inputs.unpack_directory }}"
+            fi
+            
             echo "Successfully extracted ${FILE_TO_UNPACK} contents to dist/"
           else
             echo "Error: Specified file $FILE_TO_UNPACK does not exist."
