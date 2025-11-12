@@ -52,6 +52,12 @@ on:
         type: boolean
         default: true
 
+      unpack_filename:
+        description: "The final file to unpack into the artifact"
+        required: false
+        type: string
+        default: ""
+
       version:
         description: "The version of the application"
         required: false
@@ -199,14 +205,30 @@ jobs:
         if: ${{ inputs.create_distribution }}
         working-directory: ${{ inputs.working_directory }}
         run: |
-          poetry build
+          poetry build -o tmp_dist
+          mkdir -p dist
 
-      - name: List artifact contents
+      - name: Prepare  package distribution for artifact
+        if: ${{ inputs.create_distribution }} && ${{ inputs.unpack_filename == '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
-          echo "Files in artifact directory:"
-          echo "------------------------------------------------------------------"
-          ls dist -R
+          mv tmp_dist/* dist/
+          rm -rf tmp_dist
+
+      - name: Prepare specified file for artifact
+        if: ${{ inputs.create_distribution }} && ${{ inputs.unpack_filename != '' }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          FILE_TO_UNPACK="tmp_dist/${{ inputs.unpack_filename }}"
+          if [ -f "$FILE_TO_UNPACK" ]; then
+            echo "Extracting ${FILE_TO_UNPACK} to dist directory..."
+            tar -xzf "$FILE_TO_UNPACK" -C dist/
+            echo "Successfully extracted ${FILE_TO_UNPACK} contents to dist/"
+          else
+            echo "Error: Specified file $FILE_TO_UNPACK does not exist."
+            exit 1
+          fi
+          rm -rf tmp_dist
 
       - name: Prepare additional files for artifact
         if: ${{ inputs.setup_files != '' }}
@@ -225,6 +247,7 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
+        if: ${{ inputs.create_distribution }} && ${{ inputs.upload_artifact }}
         with:
           name: ${{ inputs.artifact_name }}
           path: ${{ inputs.working_directory }}/dist/*
