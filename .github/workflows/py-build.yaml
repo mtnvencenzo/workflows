@@ -208,8 +208,8 @@ jobs:
           poetry build -o tmp_dist
           mkdir -p dist
 
-      - name: Prepare  package distribution for artifact
-        if: ${{ inputs.create_distribution }} && ${{ inputs.unpack_filename == '' }}
+      - name: Prepare package distribution for artifact
+        if: ${{ inputs.create_distribution && inputs.unpack_filename == '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           mv tmp_dist/* dist/
@@ -223,7 +223,7 @@ jobs:
           ls -la dist/
 
       - name: Prepare specified file for artifact
-        if: ${{ inputs.create_distribution }} && ${{ inputs.unpack_filename != '' }}
+        if: ${{ inputs.create_distribution && inputs.unpack_filename != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           ls -la -R tmp_dist/
@@ -240,7 +240,7 @@ jobs:
           rm -rf tmp_dist
 
       - name: Prepare additional files for artifact
-        if: ${{ inputs.setup_files != '' }}
+        if: ${{ inputs.create_distribution && inputs.setup_files != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
           echo "Preparing additional files for artifact..."
@@ -263,7 +263,7 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
-        if: ${{ inputs.create_distribution }} && ${{ inputs.upload_artifact }}
+        if: ${{ inputs.create_distribution && inputs.upload_artifact }}
         with:
           name: ${{ inputs.artifact_name }}
           path: ${{ inputs.working_directory }}/dist/*
