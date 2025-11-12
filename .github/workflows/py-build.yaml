@@ -208,6 +208,21 @@ jobs:
           echo "------------------------------------------------------------------"
           ls dist -R
 
+      - name: Prepare additional files for artifact
+        if: ${{ inputs.setup_files != '' }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          echo "Preparing additional files for artifact..."
+          FILES_TO_COPY=$(echo '${{ inputs.setup_files }}' | jq -r '.[]')
+          for FILE in $FILES_TO_COPY; do
+            if [ -f "$FILE" ]; then
+              cp "$FILE" dist/
+              echo "Copied $FILE to dist/"
+            else
+              echo "Warning: $FILE does not exist and will be skipped."
+            fi
+          done
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
