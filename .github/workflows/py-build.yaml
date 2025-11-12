@@ -215,10 +215,19 @@ jobs:
           mv tmp_dist/* dist/
           rm -rf tmp_dist
 
+      - name: List artifact contents
+        if: ${{ inputs.create_distribution }}
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          echo "Contents of dist directory:"
+          ls -la dist/
+
       - name: Prepare specified file for artifact
         if: ${{ inputs.create_distribution }} && ${{ inputs.unpack_filename != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |
+          ls -la -R tmp_dist/
+
           FILE_TO_UNPACK="tmp_dist/${{ inputs.unpack_filename }}"
           if [ -f "$FILE_TO_UNPACK" ]; then
             echo "Extracting ${FILE_TO_UNPACK} to dist directory..."
