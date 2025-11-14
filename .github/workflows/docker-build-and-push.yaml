@@ -22,9 +22,15 @@ on:
         type: string
         required: true
       image_tag:
-        description: "The tag to use for the image"
+        description: "DEPRECATED: Use 'image_tags' instead. This input will be removed in future versions."
         type: string
-        required: true
+        required: false
+        default: ""
+      image_tags:
+        description: "A list of tags to apply to the image (comma separated)"
+        required: false
+        type: string
+        default: ""
       docker_file_name:
         description: "The name of the docker file to use"
         required: true
@@ -81,12 +87,32 @@ jobs:
         run: |
           ls -R
 
+      - name: Set Docker tags
+        id: docker_tags
+        run: |
+          if [ "${{ inputs.image_tag }}" = "" ] && [ "${{ inputs.image_tags }}" = "" ]; then
+            echo "Error: Both image_tag and image_tags are empty. At least one tag must be provided."
+            exit 1
+          fi
+          > tags.txt
+          if [ "${{ inputs.image_tag }}" != "" ]; then
+            echo "${{ inputs.acr_registry_login_server }}/${{ inputs.acr_image_repository }}:${{ inputs.image_tag }}" >> tags.txt
+          fi
+          if [ "${{ inputs.image_tags }}" != "" ]; then
+            for tag in $(echo "${{ inputs.image_tags }}" | tr ',' '\n'); do
+              echo "${{ inputs.acr_registry_login_server }}/${{ inputs.acr_image_repository }}:${tag}" >> tags.txt
+            done
+          fi
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          cat tags.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Acr build and push
         uses: docker/build-push-action@v5
         if: ${{ inputs.allow_build_and_push }}
         with:
-          push: true
-          context: ./${{ inputs.working_directory }}/docker_artifact
-          tags: ${{ inputs.acr_registry_login_server }}/${{ inputs.acr_image_repository }}:${{ inputs.image_tag }}
-          file: ./${{ inputs.working_directory }}/docker_artifact/${{ inputs.docker_file_name }}
+            push: true
+            context: ./${{ inputs.working_directory }}/docker_artifact
+            tags: ${{ steps.docker_tags.outputs.tags }}
+            file: ./${{ inputs.working_directory }}/docker_artifact/${{ inputs.docker_file_name }}
 
