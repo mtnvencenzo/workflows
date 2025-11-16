@@ -125,21 +125,21 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
-      # - name: Cache Poetry dependencies
-      #   if: ${{ inputs.cache_dependencies }}
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ~/.cache/pypoetry
-      #       ${{ inputs.working_directory }}/.venv
-      #     key: ${{ runner.os }}-poetry-${{ hashFiles(format('{0}/poetry.lock', inputs.working_directory)) }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-poetry-
+      - name: Cache Poetry dependencies
+        if: ${{ inputs.cache_dependencies }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pypoetry
+            ${{ inputs.working_directory }}/.venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles(format('{0}/poetry.lock', inputs.working_directory)) }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
 
       - name: Configure poetry
         run: |
           poetry config virtualenvs.in-project true
-          # poetry config cache-dir ${HOME}/.cache/pypoetry
+          poetry config cache-dir ${HOME}/.cache/pypoetry
 
       - name: Install dependencies
         working-directory: ${{ inputs.working_directory }}
