@@ -168,7 +168,9 @@ jobs:
           if [ "${{ inputs.lint_only }}" = "true" ]; then
             echo "PLAN_OUTPUT=" >> $GITHUB_OUTPUT
           else
-            echo "PLAN_OUTPUT=${{ steps.plan.outputs.stdout }}" >> $GITHUB_OUTPUT
+            echo 'PLAN_OUTPUT<<EOF' >> $GITHUB_OUTPUT
+            echo "${{ steps.plan.outputs.stdout }}" >> $GITHUB_OUTPUT
+            echo 'EOF' >> $GITHUB_OUTPUT
           fi
 
       - name: Terraform upsert comment on pr
