@@ -63,6 +63,11 @@ on:
         description: "The domain name for the CDN"
         required: true
         type: string
+      purge_cdn_cache:
+        description: "Whether to purge the CDN cache after deployment"
+        required: false
+        type: boolean
+        default: true
     secrets:
       arm_client_secret:
         description: "Azure arm client secret"
@@ -158,7 +163,7 @@ jobs:
               --pattern '*'
 
       - name: Purge cdn cache
-        if: ${{ inputs.cdn_resource_group != '' }}
+        if: ${{ inputs.cdn_resource_group != '' && inputs.purge_cdn_cache == true }}
         run: |
             az afd endpoint purge \
               --resource-group '${{ inputs.cdn_resource_group }}' \
