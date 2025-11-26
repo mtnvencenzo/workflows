@@ -111,7 +111,7 @@ jobs:
 
       - name: Terraform modules ssh key setup
         # Supports fetching the packages. Not just the package.json git refs of legacy, but onerail scripts pulling packages.
-        uses: webfactory/ssh-agent@v0.7.0
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.terraform_module_repo_access_key_secret }}
 
@@ -248,7 +248,7 @@ jobs:
 
       - name: Add ssh key to ssh-agent
         # Supports fetching the packages. Not just the package.json git refs of legacy, but onerail scripts pulling packages.
-        uses: webfactory/ssh-agent@v0.7.0
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.terraform_module_repo_access_key_secret }}
 
