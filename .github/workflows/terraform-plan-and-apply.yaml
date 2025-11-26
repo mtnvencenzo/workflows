@@ -55,6 +55,11 @@ on:
         required: false
         type: string
         default: ""
+      lint_only:
+        description: "If true, only run terraform fmt and validate, skipping plan and apply"
+        required: false
+        type: boolean
+        default: false
     secrets:
       arm_client_secret:
         description: "Azure arm client secret"
@@ -134,12 +139,14 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Terraform plan
+        if: ${{ !inputs.lint_only }}
         id: plan
         run: |
           terraform plan -var-file=environment_vars/${{ inputs.environment_name }}.tfvars -out=${{ inputs.environment_name }}.tfplan ${{ inputs.command_line_args }} ${{ secrets.command_line_args}}
         working-directory: ${{ inputs.working_directory }}
 
       - name: Terraform plan upload artifact
+        if: ${{ !inputs.lint_only }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.environment_name }}.tfplan
@@ -154,6 +161,15 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: '<!-- tf-plan-comment: terraform-plan-and-apply -->'
           comment-author: 'github-actions[bot]'
+
+      - name: Set plan output for comment
+        id: plan_comment
+        run: |
+          if [ "${{ inputs.lint_only }}" = "true" ]; then
+            echo "PLAN_OUTPUT=" >> $GITHUB_OUTPUT
+          else
+            echo "PLAN_OUTPUT=${{ steps.plan.outputs.stdout }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Terraform upsert comment on pr
         if: ${{ github.event_name == 'pull_request' }}
@@ -175,7 +191,7 @@ jobs:
             ```
             #### Terraform plan
             ```bash
-            ${{ steps.plan.outputs.stdout }}
+            ${{ steps.plan_comment.outputs.PLAN_OUTPUT }}
             ```
 
             *This comment is managed by the terraform-plan-and-apply.yaml workflow and will be updated on subsequent runs.*
@@ -188,7 +204,7 @@ jobs:
 
   terraform_deploy:
     name: Terraform deploy
-    if: ${{ inputs.allow_deploy }}
+    if: ${{ inputs.allow_deploy && !inputs.lint_only }}
     runs-on: "ubuntu-latest"
     environment: ${{ inputs.environment_name }}
     needs: terraform_prepare
