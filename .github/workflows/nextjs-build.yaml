@@ -12,7 +12,7 @@ on:
       node_version:
         description: "The node version to use"
         required: false
-        default: "23.5.x"
+        default: "24.x"
         type: string
       setup_files:
         required: false
