@@ -29,7 +29,7 @@ on:
       use_npm_auth:
         description: "Whether to authenticate to an npm feed or not"
         required: false
-        default: false
+        default: true
         type: boolean
       version:
         description: "The version of the application"
