@@ -152,53 +152,6 @@ jobs:
           name: ${{ inputs.environment_name }}.tfplan
           path: ${{ inputs.working_directory }}/${{ inputs.environment_name }}.tfplan
           include-hidden-files: true
-
-      - name: Terraform find comment on pr
-        if: ${{ github.event_name == 'pull_request' }}
-        id: fc
-        uses: peter-evans/find-comment@v3
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: '<!-- tf-plan-comment: terraform-plan-and-apply -->'
-          comment-author: 'github-actions[bot]'
-
-      - name: Set plan output for comment
-        id: plan_comment
-        run: |
-          if [ "${{ inputs.lint_only }}" = "true" ]; then
-            echo "PLAN_OUTPUT=" >> $GITHUB_OUTPUT
-          else
-            echo 'PLAN_OUTPUT<<EOF' >> $GITHUB_OUTPUT
-            echo "${{ steps.plan.outputs.stdout }}" >> $GITHUB_OUTPUT
-            echo 'EOF' >> $GITHUB_OUTPUT
-          fi
-
-      - name: Terraform upsert comment on pr
-        if: ${{ github.event_name == 'pull_request' }}
-        continue-on-error: true
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            <!-- tf-plan-comment: terraform-plan-and-apply -->
-            ### Terraform :rocket:
-            #### Terraform format
-            ```bash
-            ${{ steps.format.outputs.stdout }}
-            ```
-            #### Terraform validate
-            ```bash
-            ${{ steps.validate.outputs.stdout }}
-            ```
-            #### Terraform plan
-            ```bash
-            ${{ steps.plan_comment.outputs.PLAN_OUTPUT }}
-            ```
-
-            *This comment is managed by the terraform-plan-and-apply.yaml workflow and will be updated on subsequent runs.*
-          edit-mode: replace
-          reactions: eyes
   
       - name: Cancelling parallel jobs if needed
         if: failure()
