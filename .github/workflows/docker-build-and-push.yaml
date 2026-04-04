@@ -21,11 +21,6 @@ on:
         description: "The login server for the ACR registry"
         type: string
         required: true
-      image_tag:
-        description: "DEPRECATED: Use 'image_tags' instead. This input will be removed in future versions."
-        type: string
-        required: false
-        default: ""
       image_tags:
         description: "A list of tags to apply to the image (comma separated)"
         required: false
@@ -90,19 +85,16 @@ jobs:
       - name: Set Docker tags
         id: docker_tags
         run: |
-          if [ "${{ inputs.image_tag }}" = "" ] && [ "${{ inputs.image_tags }}" = "" ]; then
-            echo "Error: Both image_tag and image_tags are empty. At least one tag must be provided."
+          if [ "${{ inputs.image_tags }}" = "" ]; then
+            echo "Error: Image tags are required."
             exit 1
           fi
           > tags.txt
-          if [ "${{ inputs.image_tag }}" != "" ]; then
-            echo "${{ inputs.acr_registry_login_server }}/${{ inputs.acr_image_repository }}:${{ inputs.image_tag }}" >> tags.txt
-          fi
-          if [ "${{ inputs.image_tags }}" != "" ]; then
-            for tag in $(echo "${{ inputs.image_tags }}" | tr ',' '\n'); do
-              echo "${{ inputs.acr_registry_login_server }}/${{ inputs.acr_image_repository }}:${tag}" >> tags.txt
-            done
-          fi
+
+          for tag in $(echo "${{ inputs.image_tags }}" | tr ',' '\n'); do
+            echo "${{ inputs.acr_registry_login_server }}/${{ inputs.acr_image_repository }}:${tag}" >> tags.txt
+          done
+
           echo "tags<<EOF" >> $GITHUB_OUTPUT
           cat tags.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
