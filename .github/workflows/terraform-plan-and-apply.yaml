@@ -75,9 +75,6 @@ on:
       command_line_args:
         description: "Command line arguments to pass to terraform that contain secrets"
         required: false
-      approval_github_token:
-        description: "GitHub token with Issues write permission for manual approval"
-        required: false
 
   workflow_dispatch:
 
@@ -174,7 +171,7 @@ jobs:
         uses: trstringer/manual-approval@v1
         if: ${{ inputs.manual_approval }}
         with:
-          secret: ${{ secrets.approval_github_token }}
+          secret: ${{ github.token }}
           approvers: mtnvencenzo
           minimum-approvals: 1
           issue-title: "Terraform deploy approval — ${{ inputs.environment_name }}"
