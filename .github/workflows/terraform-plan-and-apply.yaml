@@ -60,6 +60,11 @@ on:
         required: false
         type: boolean
         default: false
+      manual_approval:
+        description: "Require manual approval for terraform apply to run"
+        required: false
+        type: boolean
+        default: false
     secrets:
       arm_client_secret:
         description: "Azure arm client secret"
@@ -70,7 +75,10 @@ on:
       command_line_args:
         description: "Command line arguments to pass to terraform that contain secrets"
         required: false
-      
+      approval_github_token:
+        description: "GitHub token with Issues write permission for manual approval"
+        required: false
+
   workflow_dispatch:
 
 jobs:
@@ -97,8 +105,6 @@ jobs:
       ARM_TENANT_ID: ${{ inputs.arm_tenant_id }}
       TF_IN_AUTOMATION: "true"
       TF_CLI_ARGS: "-no-color"
-
-
 
     steps:
       - name: Checkout code
@@ -157,12 +163,28 @@ jobs:
         if: failure()
         uses: andymckay/cancel-action@0.4
 
+  terraform_deploy_approval:
+    name: Terraform deploy approval
+    if: ${{ inputs.allow_deploy && !inputs.lint_only }}
+    runs-on: "ubuntu-latest"
+    needs: terraform_prepare
+
+    steps:
+      - name: Wait for approval
+        uses: trstringer/manual-approval@v1
+        if: ${{ inputs.manual_approval }}
+        with:
+          secret: ${{ secrets.approval_github_token }}
+          approvers: mtnvencenzo
+          minimum-approvals: 1
+          issue-title: "Terraform deploy approval — ${{ inputs.environment_name }}"
+          issue-body: "Please approve or deny the Terraform deploy for environment **${{ inputs.environment_name }}**."
+
   terraform_deploy:
     name: Terraform deploy
     if: ${{ inputs.allow_deploy && !inputs.lint_only }}
     runs-on: "ubuntu-latest"
-    environment: ${{ inputs.environment_name }}
-    needs: terraform_prepare
+    needs: [terraform_prepare, terraform_deploy_approval]
 
     defaults:
       run:
