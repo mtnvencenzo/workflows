@@ -181,6 +181,7 @@ jobs:
     name: Terraform deploy
     if: ${{ inputs.allow_deploy && !inputs.lint_only }}
     runs-on: "ubuntu-latest"
+    environment: ${{ inputs.environment_name }}
     needs: [terraform_prepare, terraform_deploy_approval]
 
     defaults:
