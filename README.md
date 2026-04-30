@@ -274,29 +274,6 @@ Creates a GitHub release with the provided tag/name.
     version: 'v1.2.3'
 ```
 
-## 📝 How to Use
-
-1. Reference a workflow using `uses: mtnvencenzo/workflows/<path>@<tag-or-sha>`
-2. Provide required inputs and any needed secrets
-3. Pin to a tag or commit SHA for reproducible builds
-
-## 🔐 Permissions and Secrets
-
-- Some workflows require repository or environment secrets (noted in examples).
-- Prefer least-privilege permissions and pass only the secrets required.
-
-## 🔧 Requirements
-
-- GitHub Actions enabled on your repository
-- Required permissions and secrets configured
-
-## 🌐 Community & Support
-
-- 🤝 **Contributing Guide** – review expectations and workflow in [CONTRIBUTING.md](./.github/CONTRIBUTING.md)  
-- 🤗 **Code of Conduct** – help us keep the community welcoming by reading [CODE_OF_CONDUCT.md](./.github/CODE_OF_CONDUCT.md)  
-- 🆘 **Support Guide** – find help channels in [SUPPORT.md](./.github/SUPPORT.md)  
-- 🔒 **Security Policy** – report vulnerabilities responsibly via [SECURITY.md](./.github/SECURITY.md) 
-
 ## 📄 License
 
 This project is proprietary software. All rights reserved. See the full license in [LICENSE](./LICENSE).
