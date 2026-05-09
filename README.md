@@ -2,6 +2,8 @@
 
 This repository contains a collection of reusable GitHub Actions workflows that I use across my projects. These workflows are designed to be called from other repositories within my GitHub account.
 
+It also includes a couple of local maintenance scripts for repository and container registry cleanup.
+
 ## 🚀 Available Workflows
 
 Here’s a snapshot of what’s included. Each workflow is versioned via this repo, so pin to a tag or commit SHA when consuming.
@@ -108,7 +110,7 @@ jobs:
 ```
 
 ### 7. Docker Build and Push (`.github/workflows/docker-build-and-push.yaml`)
-Builds Docker images and pushes them to a registry.
+Builds Docker images and pushes them to a registry. It can also purge older manifests from the pushed ACR repository.
 
 Usage
 ```yaml
@@ -116,8 +118,19 @@ jobs:
   docker:
     uses: mtnvencenzo/workflows/.github/workflows/docker-build-and-push.yaml@main
     with:
-      image-name: 'my-app'
-      registry: 'ghcr.io'
+      artifact_name: 'api-build-artifact'
+      working_directory: './src/MyApi'
+      acr_image_repository: 'my-api'
+      acr_registry_login_server: 'myregistry.azurecr.io'
+      image_tags: 'latest,1.2.3,abc1234'
+      docker_file_name: 'Dockerfile'
+      allow_build_and_push: true
+      purge_manifests: true
+      purge_keep_count: '3'
+      purge_delete_untagged: true
+    secrets:
+      acr_registry_login_username: ${{ secrets.ACR_USERNAME }}
+      acr_registry_login_password: ${{ secrets.ACR_PASSWORD }}
 ```
 
 ### 8. NuGet Pack and Push (`.github/workflows/nuget-pack-and-push.yaml`)
@@ -272,6 +285,89 @@ Creates a GitHub release with the provided tag/name.
   uses: mtnvencenzo/workflows/.github/actions/create-release@main
   with:
     version: 'v1.2.3'
+```
+
+### purge-acr-manifests (`.github/actions/purge-acr-manifests`)
+Purges older manifests from a specific Azure Container Registry repository using the repo maintenance script.
+
+```yaml
+- name: Purge old ACR manifests
+  uses: mtnvencenzo/workflows/.github/actions/purge-acr-manifests@main
+  with:
+    acr_registry_login_server: 'myregistry.azurecr.io'
+    acr_repository_name: 'my-api'
+    retain_count: '3'
+    delete_untagged: 'true'
+    acr_username: ${{ secrets.ACR_USERNAME }}
+    acr_password: ${{ secrets.ACR_PASSWORD }}
+```
+
+## Maintenance Scripts
+
+These local scripts help clean up GitHub Actions workflow runs and Azure Container Registry images.
+
+### delete-old-workflow-runs.sh
+Deletes workflow runs older than a target date across repositories owned by a given GitHub account.
+
+```shell
+BEFORE_DATE=2026-04-20T00:00:00Z
+
+./delete-old-workflow-runs.sh \
+  mtnvencenzo \
+  $GH_REPOS_PAT_TOKEN_ALL \
+  $BEFORE_DATE
+```
+
+If no date is provided, the script defaults to deleting runs older than two months.
+
+Cron example:
+
+```shell
+# Run every day at 7:00 PM, defaulting to runs older than 2 months.
+0 19 * * * $HOME/Github/workflows/delete-old-workflow-runs.sh mtnvencenzo $GH_REPOS_PAT_TOKEN_ALL
+```
+
+### purge-old-acr-images.sh
+Keeps the newest 3 tagged digests in every repository in an Azure Container Registry and deletes older tagged digests.
+
+All tags attached to the retained digests are preserved. When an older tagged digest is deleted, every tag pointing at that digest is removed with it.
+
+Untagged digests are deleted by default. You can opt out by setting `DELETE_UNTAGGED=false`.
+
+The script uses ACR registry credentials only. It accepts `ACR_USERNAME` and `ACR_PASSWORD`, and falls back to `ACR_USER_NAME` and `ACR_ACCESS_KEY` when those are not set.
+
+```shell
+./purge-old-acr-images.sh acrveceusgloshared001
+```
+
+Optional arguments:
+
+```shell
+# Keep the newest 5 digests per repository.
+./purge-old-acr-images.sh acrveceusgloshared001 5
+
+# Only process the exact repository named "api".
+./purge-old-acr-images.sh acrveceusgloshared001 3 api
+
+# Preview deletions without deleting anything.
+DRY_RUN=true ./purge-old-acr-images.sh acrveceusgloshared001
+
+# Keep untagged digests.
+DELETE_UNTAGGED=false ./purge-old-acr-images.sh acrveceusgloshared001
+
+# Authenticate with ACR registry credentials.
+ACR_USERNAME="$ACR_USERNAME" ACR_PASSWORD="$ACR_PASSWORD" ./purge-old-acr-images.sh acrveceusgloshared001
+
+# Use fallback environment variable names.
+ACR_REGISTRY_NAME="acrveceusgloshared001" ACR_USER_NAME="$ACR_USER_NAME" ACR_ACCESS_KEY="$ACR_ACCESS_KEY" ./purge-old-acr-images.sh
+```
+
+Requirements:
+
+```shell
+jq --version
+az acr repository list --name myregistryname --username "$ACR_USER_NAME" --password "$ACR_ACCESS_KEY"
+az acr manifest list-metadata --registry myregistryname --name sample-repository
 ```
 
 ## 📄 License

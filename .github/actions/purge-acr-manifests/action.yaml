@@ -1,0 +1,47 @@
+name: Purge ACR manifests
+description: Purge old tagged and optional untagged manifests from a specific Azure Container Registry repository
+
+inputs:
+  acr_registry_login_server:
+    description: "The Azure Container Registry login server"
+    required: true
+  acr_repository_name:
+    description: "The Azure Container Registry repository name to purge"
+    required: true
+  retain_count:
+    description: "How many tagged digests to keep"
+    required: false
+    default: "3"
+  delete_untagged:
+    description: "Delete untagged digests in addition to old tagged digests"
+    required: false
+    default: "true"
+  dry_run:
+    description: "Preview deletions without deleting anything"
+    required: false
+    default: "false"
+  acr_username:
+    description: "ACR registry username"
+    required: true
+  acr_password:
+    description: "ACR registry password"
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Purge old ACR manifests
+      shell: bash
+      env:
+        DRY_RUN: ${{ inputs.dry_run }}
+        DELETE_UNTAGGED: ${{ inputs.delete_untagged }}
+        ACR_USERNAME: ${{ inputs.acr_username }}
+        ACR_PASSWORD: ${{ inputs.acr_password }}
+      run: |
+        ACR_REGISTRY_NAME="${{ inputs.acr_registry_login_server }}"
+        ACR_REGISTRY_NAME="${ACR_REGISTRY_NAME%%.*}"
+
+        bash "$GITHUB_ACTION_PATH/../../../purge-old-acr-images.sh" \
+          "$ACR_REGISTRY_NAME" \
+          "${{ inputs.retain_count }}" \
+          "${{ inputs.acr_repository_name }}"
