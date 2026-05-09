@@ -34,26 +34,6 @@ on:
         description: "Allow the build and push to run. This is used to determine if the build and push job should run or not"
         type: boolean
         required: true
-      purge_manifests:
-        description: "Purge older manifests in the pushed ACR repository after a successful push"
-        type: boolean
-        required: false
-        default: false
-      purge_keep_count:
-        description: "How many tagged digests to keep when purge_manifests is enabled"
-        type: string
-        required: false
-        default: "3"
-      purge_delete_untagged:
-        description: "Delete untagged digests when purge_manifests is enabled"
-        type: boolean
-        required: false
-        default: true
-      purge_dry_run:
-        description: "Preview manifest purge without deleting anything"
-        type: boolean
-        required: false
-        default: false
 
     secrets:
       acr_registry_login_username:
@@ -127,34 +107,4 @@ jobs:
             context: ./${{ inputs.working_directory }}/docker_artifact
             tags: ${{ steps.docker_tags.outputs.tags }}
             file: ./${{ inputs.working_directory }}/docker_artifact/${{ inputs.docker_file_name }}
-
-  purge_acr_manifests:
-    name: Purge ACR manifests
-    runs-on: ubuntu-latest
-    needs: docker_build_and_push
-    if: ${{ inputs.allow_build_and_push && inputs.purge_manifests && needs.docker_build_and_push.result == 'success' }}
-    continue-on-error: true
-
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      - name: Validate purge inputs
-        run: |
-          if [ "${{ inputs.acr_registry_login_server }}" = "" ]; then
-            echo "Error: acr_registry_login_server is required when purge_manifests is true."
-            exit 1
-          fi
-
-      - name: Purge old ACR manifests
-        uses: mtnvencenzo/workflows/.github/actions/purge-acr-manifests@main
-        with:
-          acr_registry_login_server: ${{ inputs.acr_registry_login_server }}
-          acr_repository_name: ${{ inputs.acr_image_repository }}
-          retain_count: ${{ inputs.purge_keep_count }}
-          delete_untagged: ${{ inputs.purge_delete_untagged }}
-          dry_run: ${{ inputs.purge_dry_run }}
-          acr_username: ${{ secrets.acr_registry_login_username }}
-          acr_password: ${{ secrets.acr_registry_login_password }}
 

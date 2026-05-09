@@ -1,0 +1,67 @@
+name: Docker purge
+
+on:
+  workflow_call:
+    inputs:
+      acr_image_repository:
+        description: "The name of the image repository to purge"
+        required: true
+        type: string
+      acr_registry_login_server:
+        description: "The login server for the ACR registry"
+        type: string
+        required: true
+      retain_count:
+        description: "How many tagged digests to keep"
+        type: string
+        required: false
+        default: "3"
+      delete_untagged:
+        description: "Delete untagged digests in addition to old tagged digests"
+        type: boolean
+        required: false
+        default: true
+      dry_run:
+        description: "Preview manifest purge without deleting anything"
+        type: boolean
+        required: false
+        default: false
+
+    secrets:
+      acr_registry_login_username:
+        description: "The username for the ACR registry"
+        required: true
+      acr_registry_login_password:
+        description: "The password for the ACR registry"
+        required: true
+
+  workflow_dispatch:
+
+jobs:
+  purge_acr_manifests:
+    name: Purge ACR manifests
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Validate purge inputs
+        run: |
+          if [ "${{ inputs.acr_registry_login_server }}" = "" ]; then
+            echo "Error: acr_registry_login_server is required."
+            exit 1
+          fi
+
+      - name: Purge old ACR manifests
+        uses: mtnvencenzo/workflows/.github/actions/purge-acr-manifests@main
+        with:
+          acr_registry_login_server: ${{ inputs.acr_registry_login_server }}
+          acr_repository_name: ${{ inputs.acr_image_repository }}
+          retain_count: ${{ inputs.retain_count }}
+          delete_untagged: ${{ inputs.delete_untagged }}
+          dry_run: ${{ inputs.dry_run }}
+          acr_username: ${{ secrets.acr_registry_login_username }}
+          acr_password: ${{ secrets.acr_registry_login_password }}

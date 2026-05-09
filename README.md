@@ -110,7 +110,7 @@ jobs:
 ```
 
 ### 7. Docker Build and Push (`.github/workflows/docker-build-and-push.yaml`)
-Builds Docker images and pushes them to a registry. It can also purge older manifests from the pushed ACR repository.
+Builds Docker images and pushes them to a registry.
 
 Usage
 ```yaml
@@ -125,15 +125,31 @@ jobs:
       image_tags: 'latest,1.2.3,abc1234'
       docker_file_name: 'Dockerfile'
       allow_build_and_push: true
-      purge_manifests: true
-      purge_keep_count: '3'
-      purge_delete_untagged: true
     secrets:
       acr_registry_login_username: ${{ secrets.ACR_USERNAME }}
       acr_registry_login_password: ${{ secrets.ACR_PASSWORD }}
 ```
 
-### 8. NuGet Pack and Push (`.github/workflows/nuget-pack-and-push.yaml`)
+### 8. Docker Purge (`.github/workflows/docker-purge.yaml`)
+Purges older manifests from a specific ACR repository in a dedicated reusable workflow.
+
+Usage
+```yaml
+jobs:
+  purge:
+    uses: mtnvencenzo/workflows/.github/workflows/docker-purge.yaml@main
+    with:
+      acr_image_repository: 'my-api'
+      acr_registry_login_server: 'myregistry.azurecr.io'
+      retain_count: '3'
+      delete_untagged: true
+      dry_run: false
+    secrets:
+      acr_registry_login_username: ${{ secrets.ACR_USERNAME }}
+      acr_registry_login_password: ${{ secrets.ACR_PASSWORD }}
+```
+
+### 9. NuGet Pack and Push (`.github/workflows/nuget-pack-and-push.yaml`)
 Packs and pushes .NET NuGet packages.
 
 Usage
@@ -146,7 +162,7 @@ jobs:
       nuget-source: 'https://api.nuget.org/v3/index.json'
 ```
 
-### 9. API Build (`.github/workflows/api-build.yaml`)
+### 10. API Build (`.github/workflows/api-build.yaml`)
 Builds and tests .NET API projects with coverage and packaged artifacts.
 
 Usage
@@ -169,7 +185,7 @@ jobs:
       github_packages_pat_token: ${{ secrets.GH_PACKAGES_PAT }}
 ```
 
-### 10. Cypress Runner (`.github/workflows/cypress-runner.yaml`)
+### 11. Cypress Runner (`.github/workflows/cypress-runner.yaml`)
 Runs Cypress E2E tests.
 
 Usage
@@ -182,7 +198,7 @@ jobs:
       parallel: 'true'
 ```
 
-### 11. API Call (`.github/workflows/api-call.yaml`)
+### 12. API Call (`.github/workflows/api-call.yaml`)
 Generic API call with retry and status code validation—handy for health checks or readiness gates.
 
 Usage
@@ -200,7 +216,7 @@ jobs:
       authValue: ${{ secrets.SERVICE_TOKEN }} # optional
 ```
 
-### 12. Go Build (`.github/workflows/go-build.yaml`)
+### 13. Go Build (`.github/workflows/go-build.yaml`)
 Builds Go applications with linting, tests, coverage export, and artifact packaging.
 
 Usage
@@ -219,7 +235,7 @@ jobs:
       version: '1.0.0'
 ```
 
-### 13. Python Build (`.github/workflows/python-build.yaml`)
+### 14. Python Build (`.github/workflows/python-build.yaml`)
 Builds Python applications with ruff linting, pytest testing, coverage reporting, and artifact packaging.
 
 Usage
