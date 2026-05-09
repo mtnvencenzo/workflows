@@ -11,6 +11,11 @@ on:
         description: "The login server for the ACR registry"
         type: string
         required: true
+      enable_purge:
+        description: "Allow the purge step to run"
+        type: boolean
+        required: false
+        default: false
       retain_count:
         description: "How many tagged digests to keep"
         type: string
@@ -56,6 +61,7 @@ jobs:
           fi
 
       - name: Purge old ACR manifests
+        if: ${{ inputs.enable_purge }}
         uses: mtnvencenzo/workflows/.github/actions/purge-acr-manifests@main
         with:
           acr_registry_login_server: ${{ inputs.acr_registry_login_server }}

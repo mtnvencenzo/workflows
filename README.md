@@ -141,6 +141,7 @@ jobs:
     with:
       acr_image_repository: 'my-api'
       acr_registry_login_server: 'myregistry.azurecr.io'
+      enable_purge: true
       retain_count: '3'
       delete_untagged: true
       dry_run: false
