@@ -39,22 +39,27 @@ jobs:
 
     steps:
       - name: Warmup request
+        env:
+          WARMUP_URL: ${{ inputs.url }}
+          EXPECTED_STATUS_CODE: ${{ inputs.statusCode }}
+          AUTH_HEADER_NAME: ${{ inputs.authHeader }}
+          AUTH_HEADER_VALUE: ${{ secrets.authValue }}
         
         run: |
             echo '===================== warming up ========================'
-            echo "GET ${{ inputs.url }}"
+            echo "GET $WARMUP_URL"
             echo '========================================================='
 
             max_retries=5
             retry_count=0
-            expected_status_code=${{ inputs.statusCode }}
+            expected_status_code="$EXPECTED_STATUS_CODE"
 
             while [ $retry_count -lt $max_retries ]; do
 
-                if [ '${{ inputs.authHeader }}' != '' ]; then
-                rs=$(curl -H "${{ inputs.authHeader }}: ${{ secrets.authValue }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                if [ -n "$AUTH_HEADER_NAME" ] && [ -n "$AUTH_HEADER_VALUE" ]; then
+                rs=$(curl -H "$AUTH_HEADER_NAME: $AUTH_HEADER_VALUE" --write-out '%{http_code}' --silent -m 30 --output /dev/null "$WARMUP_URL")
                 else
-                rs=$(curl --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                rs=$(curl --write-out '%{http_code}' --silent -m 30 --output /dev/null "$WARMUP_URL")
                 fi
 
                 if [ $rs -eq $expected_status_code ]; then
