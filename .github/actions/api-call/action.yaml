@@ -21,21 +21,29 @@ runs:
   using: 'composite'
   steps:
     - name: Calling api
+      env:
+        HTTP_METHOD: ${{ inputs.method }}
+        TARGET_URL: ${{ inputs.url }}
+        EXPECTED_STATUS_CODE: ${{ inputs.statusCode }}
+        AUTH_HEADER_NAME: ${{ inputs.authHeader }}
+        AUTH_HEADER_VALUE: ${{ env.AUTH_VALUE }}
       run: |
+          set -euo pipefail
+
           echo '===================== Calling api ========================'
-          echo "${{ inputs.method }} ${{ inputs.url }}"
+          echo "$HTTP_METHOD $TARGET_URL"
           echo '========================================================='
 
           max_retries=5
           retry_count=0
-          expected_status_code=${{ inputs.statusCode }}
+          expected_status_code="$EXPECTED_STATUS_CODE"
 
           while [ $retry_count -lt $max_retries ]; do
 
-              if [ '${{ inputs.authHeader }}' != '' ]; then
-                rs=$(curl -X ${{ inputs.method }} -H "${{ inputs.authHeader }}: ${{ env.AUTH_VALUE }}" --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+              if [ -n "$AUTH_HEADER_NAME" ] && [ -n "$AUTH_HEADER_VALUE" ]; then
+                rs=$(curl -X "$HTTP_METHOD" -H "$AUTH_HEADER_NAME: $AUTH_HEADER_VALUE" --write-out '%{http_code}' --silent -m 30 --output /dev/null "$TARGET_URL")
               else
-                rs=$(curl -X ${{ inputs.method }} --write-out '%{http_code}' --silent -m 30 --output /dev/null ${{ inputs.url }})
+                rs=$(curl -X "$HTTP_METHOD" --write-out '%{http_code}' --silent -m 30 --output /dev/null "$TARGET_URL")
               fi
 
               if [ $rs -eq $expected_status_code ]; then
