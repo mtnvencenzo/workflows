@@ -26,8 +26,12 @@ runs:
   steps:
     - name: Verify deployed version
       run: |
+        set -euo pipefail
+
         started_at=$(date +%s)
         expected_version="${{ inputs.expected_release_version }}+${{ inputs.expected_tag }}"
+        url="${{ inputs.url }}"
+        property_name="${{ inputs.property_name }}"
 
         echo "Starting version check: $started_at"
         echo "Expected release version: ${{ inputs.expected_release_version }}"
@@ -35,11 +39,14 @@ runs:
         echo "Expected api version: $expected_version"
 
         header_name="${{ inputs.auth_header }}"
-        header_name="${header_name:-X-No-Auth}"
-        header_value="${{ env.AUTH_VALUE }}"
-        header_value="${header_value:-nil}"
+        header_value="${AUTH_VALUE:-}"
 
-        current_version=$(curl -H "$header_name: $header_value" -s ${{ inputs.url }} | jq -r '.${{ inputs.property_name }}')
+        curl_args=(-sS)
+        if [ -n "$header_name" ] && [ -n "$header_value" ]; then
+          curl_args+=(-H "$header_name: $header_value")
+        fi
+
+        current_version=$(curl "${curl_args[@]}" "$url" | jq -r --arg property "$property_name" '.[$property]')
 
         while true; do
           echo "Current version: $current_version"
@@ -55,7 +62,7 @@ runs:
           fi
 
           sleep 5
-          current_version=$(curl -H "$header_name: $header_value" -s ${{ inputs.url }} | jq -r '.${{ inputs.property_name }}')
+          current_version=$(curl "${curl_args[@]}" "$url" | jq -r --arg property "$property_name" '.[$property]')
         done
       shell: bash
 
