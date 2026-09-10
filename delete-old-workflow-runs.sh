@@ -31,8 +31,16 @@ fi
 echo "Deleting all workflow runs (including orphaned) for all repos owned by $OWNER created before $DATE"
 
 # Get all repositories accessible by the token (public, private, orgs; first 100, can be paginated if needed)
-REPOS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-  "https://api.github.com/user/repos?per_page=100" | jq -r '.[] | [.owner.login, .name] | @tsv')
+REPOS_JSON=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+  "https://api.github.com/user/repos?per_page=100")
+
+if ! echo "$REPOS_JSON" | jq -e 'type == "array"' >/dev/null 2>&1; then
+  echo "Error: GitHub API did not return a repo list. Response was:" >&2
+  echo "$REPOS_JSON" >&2
+  exit 1
+fi
+
+REPOS=$(echo "$REPOS_JSON" | jq -r '.[] | [.owner.login, .name] | @tsv')
 
 echo "$REPOS" | while IFS=$'\t' read -r REPO_OWNER REPO_NAME; do
   if [[ "$REPO_OWNER" == "$OWNER" ]]; then
