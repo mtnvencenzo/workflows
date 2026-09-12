@@ -29,7 +29,7 @@ on:
         description: "The dotnet version to use"
         type: string
         required: false
-        default: "9.x"
+        default: "10.x"
 
       nuget_file_path:
         description: "Path to the NuGet.Config file"
@@ -268,7 +268,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET 9.x
+      - name: Setup .NET ${{ inputs.dotnet_version }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ inputs.dotnet_version }}

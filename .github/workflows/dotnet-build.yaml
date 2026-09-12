@@ -24,7 +24,7 @@ on:
         description: "The dotnet version to use"
         type: string
         required: false
-        default: "9.x"
+        default: "10.x"
 
       nuget_file_path:
         description: "Path to the NuGet.Config file"
